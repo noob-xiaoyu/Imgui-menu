@@ -1,25 +1,15 @@
 // menu/menu.cpp
-
-// 引入 Dear ImGui 的主头文件
 #include "imgui.h"
-// 引入菜单的自定义头文件，可能包含了 state 命名空间和 draw 函数的声明
 #include "menu.h"
-// 引入 C++ 标准库的 vector 和 string，用于管理标签和构建字符串
 #include <vector>
 #include <string>
+#include <main/ThemeManager/ThemeManager.h>
 
-// 定义一个名为 menu 的命名空间，用于组织所有与菜单相关的代码
+#include "../CustomWidgets/CustomWidgets.h"
+#include "Theme.h"
+#include <GLFW/glfw3.h>
+#include <main/main.h>
 namespace menu {
-
-    /**
-     * @brief 将 ImGui 的按键码 (ImGuiKey) 转换为 Windows 虚拟按键码 (Virtual-Key Code)。
-     *
-     * 这在需要与操作系统底层输入（如 Windows Hooks）交互时非常有用，
-     * 因为 ImGui 使用自己的按键枚举，而 Windows API 使用 VK 码。
-     *
-     * @param key 要转换的 ImGuiKey 枚举值。
-     * @return 对应的 Windows 虚拟按键码 (VK_*)，如果无对应则返回 0。
-     */
     int ImGuiKeyToVirtualKey(ImGuiKey key) {
         // 使用 switch 语句处理非字母和数字的特殊按键
         switch (key) {
@@ -57,21 +47,11 @@ namespace menu {
         // 如果没有找到对应的按键，返回 0
         return 0;
     }
-
-    /**
-     * @brief 创建一个可交互的按键绑定 ImGui 部件。
-     *
-     * 该部件允许用户点击一个按钮，然后按下键盘上的任意键来设置一个新的按键绑定。
-     *
-     * @param label 部件的标签文本。
-     * @param key_to_change 一个 ImGuiKey 变量的引用，用于存储和更新绑定的按键。
-     * @param is_waiting_flag 一个布尔值的引用，用于管理部件的状态（正常显示 vs 等待按键输入）。
-     */
     void Keybind(const char* label, ImGuiKey& key_to_change, bool& is_waiting_flag) {
         // 如果当前不处于“等待按键”状态
         if (!is_waiting_flag) {
             // 构建按钮上显示的文本，格式为 "标签: [按键名]"
-            std::string button_label = std::string(label) + "[" + ImGui::GetKeyName(key_to_change) + "]";
+            std::string button_label = std::string(label)+"[" + ImGui::GetKeyName(key_to_change) + "]";
             // 创建一个按钮，如果被点击
             if (ImGui::Button(button_label.c_str())) {
                 // 将状态标志设置为 true，进入“等待按键”状态
@@ -103,97 +83,265 @@ namespace menu {
             }
         }
     }
-
-    /**
-     * @brief 绘制整个菜单界面的主函数。
-     */
+    //static ImGuiWindowFlags demo_window_flags = ImGuiWindowFlags_MenuBar;
     void draw() {
-        // 定义菜单的标签页，使用 static const 确保只初始化一次
-        static const std::vector<const char*> menu_tabs = { "a", "b", "c", "d" };
-        // 定义当前活动的标签页索引，使用 static 确保在函数调用之间保持其值
+        static const std::vector<const char*> menu_tabs = { "a", "Visuals", "c", "d","Settings"};
         static int active_tab = 0;
-
-        // 开始绘制一个名为 "Menu" 的窗口。
-        // &state::visible 是一个指向布尔值的指针，当用户点击窗口关闭按钮时，ImGui 会将其设为 false。
-        // ImGuiWindowFlags_NoCollapse 标志禁止用户折叠窗口。
-        ImGui::Begin("Menu", &state::visible, ImGuiWindowFlags_NoCollapse); {
-
-            // 左侧导航栏区域
-            // BeginChild 创建一个子窗口，用于容纳导航按钮。
-            // ImVec2(120, 0) 表示宽度为 120 像素，高度自动填充。true 表示带边框。
+        //auto& app = ImGuiFramework::Application::Get();
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse;
+        ImGui::Begin("Menu", &state::visible, window_flags); {
             ImGui::BeginChild("NavigationBar", ImVec2(120, 0), true); {
-                // 遍历所有标签页
                 for (int i = 0; i < menu_tabs.size(); ++i) {
                     bool is_active = (active_tab == i);
-                    // 如果当前标签是活动标签
                     if (is_active) {
-                        // 临时改变按钮的颜色以高亮显示
                         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
                     }
-                    // 创建一个按钮，ImVec2(-1, 50) 表示宽度撑满子窗口，高度为 50 像素
                     if (ImGui::Button(menu_tabs[i], ImVec2(-1, 50))) {
-                        // 如果按钮被点击，则更新活动标签的索引
                         active_tab = i;
                     }
-                    // 如果之前改变了颜色，现在恢复它，以避免影响后续的控件
                     if (is_active) {
                         ImGui::PopStyleColor();
                     }
                 }
             }
-            ImGui::EndChild(); // 结束导航栏子窗口
+            ImGui::EndChild();
 
-            // 将下一个控件放在与上一个控件（导航栏）同一行
             ImGui::SameLine();
 
-            // 右侧内容区域
-            // 创建另一个子窗口来显示标签页的内容。
-            // ImVec2(0, 0) 表示自动填充剩余的父窗口空间。
             ImGui::BeginChild("ContentArea", ImVec2(0, 0), true); {
-                // 使用 switch 语句根据当前活动的标签页来决定绘制什么内容
                 switch (active_tab) {
-                case 0: { // 第一个标签页
-                    ImGui::Text("This is the a Page.");
-
-                    ImGui::Text("Menu Toggle Key:");
-                    ImGui::SameLine(); // 将按键绑定控件放在同一行
-                    ImGuiKey old_key = state::toggle_key; // 保存旧的按键值，用于检测变化
-                    // 调用 Keybind 函数创建一个按键绑定控件
-                    Keybind(" ", state::toggle_key, state::is_waiting_for_key);
-                    // 如果按键值发生了变化
-                    if (old_key != state::toggle_key) {
-                        // 立即更新对应的 Windows 虚拟按键码 (VK)
-                        state::toggle_key_vk = ImGuiKeyToVirtualKey(state::toggle_key);
+                    case 0: {
+                        ImGui::Text("This is the a Page.");
+                        
+                        
+                        ImGui::Text(u8"这里是一些中文字符: 你好, ImGui!");
+                        break;
                     }
-                    ImGui::Separator(); // 绘制一条分割线
+                    case 1: {
+                        ImGui::TableNextColumn();
+                        ImGui::Text("这是外层第 2 列");
+                        ImGui::SeparatorText(u8"鼠标拖尾");
 
-                    // 显示包含中文字符的文本。u8 前缀确保字符串是 UTF-8 编码，ImGui 可以正确处理。
-                    ImGui::Text(u8"这里是一些中文字符: 你好, ImGui!");
-                    break;
-                }
-                case 1: { // 第二个标签页
-                    ImGui::Text("This is the b Page.");
-                    // 创建一个复选框，并将其状态与 state::a_checkbox 变量绑定
-                    ImGui::Checkbox("A checkbox", &state::a_checkbox);
-                    break;
-                }
-                case 2: { // 第三个标签页
-                    ImGui::Text("This is the c Page.");
-                    // 创建一个浮点数滑块，范围 0.0 到 1.0，并与 state::a_slider 变量绑定
-                    ImGui::SliderFloat("A slider", &state::a_slider, 0.0f, 1.0f);
-                    break;
-                }
-                case 3: { // 第四个标签页
-                    ImGui::Text("This is the d Page.");
-                    // 显示一段长文本，它会自动换行以适应窗口宽度
-                    ImGui::TextWrapped("This is some long text that will wrap to the next line.");
-                    ImGui::TextWrapped(u8"这是一段较长的文本，将自动换行。");
-                    break;
-                }
+                        ImGui::Checkbox(u8"启用拖尾", &menu::Visuals::mouse_trail::Enabled);
+                        if (menu::Visuals::mouse_trail::Enabled)
+                        {
+                            // 使用 DragInt 和 DragFloat 来调整参数
+                            ImGui::DragInt(u8"拖尾长度", &menu::Visuals::mouse_trail::MaxLength, 1.0f, 10, 2000);
+                            ImGui::DragFloat(u8"初始粗细", &menu::Visuals::mouse_trail::StartThickness, 0.1f, 1.0f, 10.0f);
+
+                            // 使用 ColorEdit4 来调整颜色
+                            ImVec4 color_vec = ImGui::ColorConvertU32ToFloat4(menu::Visuals::mouse_trail::StartColor);
+                            if (ImGui::ColorEdit4(u8"拖尾颜色", &color_vec.x)) {
+                                menu::Visuals::mouse_trail::StartColor = ImGui::ColorConvertFloat4ToU32(color_vec);
+                            }
+                        }
+                       
+                        break;
+                    }
+                    case 2: {
+                        ImGui::Text("This is the c Page.");
+                        ImGui::SliderFloat("A slider", &state::a_slider, 0.0f, 1.0f);
+                        break;
+                    }
+                    case 3: {
+                        ImGui::Text("This is the d Page.");
+                        ImGui::TextWrapped("This is some long text that will wrap to the next line.");
+                        ImGui::TextWrapped(u8"这是一段较长的文本，将自动换行。");
+                        break;
+                    }
+                    case 4: { // Settings Page
+                        ImGui::Text("Settings");
+                        ImGui::Separator();
+
+                        ImGui::Text("Theme Selector");
+
+                        // ImGui::RadioButton 返回 true 当它被点击时
+                        // 这样我们只在主题被切换时才调用样式函数，效率更高
+                        static_assert(IM_ARRAYSIZE(theme_names) == static_cast<int>(menu::Theme::COUNT), "Theme names array size does not match Theme enum count!");
+                        const char* current_theme_name = theme_names[static_cast<int>(menu::Theme::COUNT)];
+                        int current_theme_idx = static_cast<int>(Settings::current_theme);
+
+                        // 添加一个安全检查，防止索引越界。如果 current_theme 未初始化，这很重要。
+                        if (current_theme_idx < 0 || current_theme_idx >= IM_ARRAYSIZE(theme_names)) {
+                            current_theme_idx = 0; // 如果索引无效，就默认选中第一个
+                        }
+                        const char* preview_value = theme_names[current_theme_idx];
+                        if (ImGui::BeginCombo(u8"主题", preview_value))
+                        {
+                            // 4. 遍历所有主题选项
+                            for (int i = 0; i < static_cast<int>(menu::Theme::COUNT); ++i)
+                            {
+                                // 判断当前遍历到的选项是否是已经被选中的
+                                const bool is_selected = (static_cast<int>(Settings::current_theme) == i);
+
+                                // 使用 Selectable 创建一个可选择的行
+                                if (ImGui::Selectable(theme_names[i], is_selected))
+                                {
+                                    // 如果用户点击了这个选项，就更新当前主题
+                                    Settings::current_theme = static_cast<menu::Theme>(i);
+                                    // 5. 根据新的选择，应用对应的主题
+                                    switch (Settings::current_theme)
+                                    {
+                                    case menu::Theme::Dark:
+                                        ImGui::StyleColorsDark();
+                                        break;
+                                    case menu::Theme::Light:
+                                        ImGui::StyleColorsLight();
+                                        break;
+                                    case menu::Theme::SakuraPink:
+                                        SetSakuraPinkTheme();
+                                        break;
+                                    case menu::Theme::NeonPinkDark:
+                                        SetNeonPinkDarkTheme();
+                                        break;
+                                    case menu::Theme::ApplyCustomStyle:
+                                        ApplyCustomStyle();
+                                        break;
+                                        
+                                    }
+                                }
+
+                                // 如果这个选项是被选中的，则默认将焦点设置到它上面，
+                                // 这样下次打开下拉框时，列表会自动滚动到选中项
+                                if (is_selected)
+                                {
+                                    ImGui::SetItemDefaultFocus();
+                                }
+                            }
+
+                            // 6. 结束下拉框
+                            ImGui::EndCombo();
+                        }
+
+                        ImGui::Text(u8"主题管理");
+                        ImGui::Separator();
+
+                        // 1. 样式编辑器
+                        static bool show_style_editor = false;
+                        ImGui::Checkbox(u8"显示实时样式编辑器", &show_style_editor);
+                        if (show_style_editor) {
+                            ImGui::Begin(u8"样式编辑器", &show_style_editor, ImGuiWindowFlags_NoCollapse);
+                            ImGui::ShowTranslatedStyleEditor(); 
+                            ImGui::End();
+                           /* ImGui::Begin(u8"样式编辑器原版", &show_style_editor);
+                            ImGui::ShowStyleEditor();
+                            ImGui::End();*/
+                        }
+
+                        ImGui::Spacing();
+
+                        // 2. 保存当前主题
+                        static char theme_filename[128];
+                        
+
+                        ImGui::Separator();
+
+                        // 3. 加载已有主题
+                        ImGui::Text(u8"加载主题");
+                        static std::vector<std::string> themes = ThemeManager::GetAvailableThemes();
+                        static int selected_theme = -1;
+
+                        // 用于 ImGui::ListBox 的 C 风格字符串数组
+                        std::vector<const char*> theme_cstrs;
+                        for (const auto& theme : themes) {
+                            theme_cstrs.push_back(theme.c_str());
+                        }
+
+                        if (ImGui::Button(u8"刷新列表")) {
+                            themes = ThemeManager::GetAvailableThemes();
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button(u8"保存当前主题")) {
+                            ThemeManager::SaveTheme(theme_filename);
+                            themes = ThemeManager::GetAvailableThemes();
+                        }
+                        ImGui::InputText(u8"文件名", theme_filename, sizeof(theme_filename));
+                        if (!themes.empty()) {
+                            std::vector<const char*> theme_cstrs;
+                            for (const auto& theme : themes) {
+                                theme_cstrs.push_back(theme.c_str());
+                            }
+                            if (ImGui::ListBox("##ThemesList", &selected_theme, theme_cstrs.data(), static_cast<int>(theme_cstrs.size())))
+                            {
+                                // 当 ListBox 返回 true 时，意味着 selected_theme 刚刚被用户改变了
+                                // 我们就在这里更新文件名输入框的内容
+                                if (selected_theme >= 0 && selected_theme < themes.size()) {
+                                    // 安全地将 std::string 复制到 C 风格的 char 数组中
+                                    const std::string& selected_name = themes[selected_theme];
+                                    strncpy_s(theme_filename, selected_name.c_str(), sizeof(theme_filename) - 1);
+                                    theme_filename[sizeof(theme_filename) - 1] = '\0'; // 确保字符串以空字符结尾
+                                }
+                            }
+
+                            // --- 加载按钮 ---
+                            ImGui::SameLine();
+                            // 检查选中项是否有效
+                            bool is_selection_valid = (selected_theme >= 0 && selected_theme < themes.size());
+
+                            // 如果没有有效选项，则禁用按钮
+                            ImGui::BeginDisabled(!is_selection_valid);
+                            if (ImGui::Button(u8"加载选中项")) {
+                                ThemeManager::LoadTheme(themes[selected_theme]);
+                            }
+                            ImGui::EndDisabled();
+                        }
+                        
+                        else {
+                            ImGui::Text(u8"在 'themes' 文件夹中未找到任何主题。");
+                        }
+                        
+                        ImGui::Separator();
+                        ImGui::Text("Menu Toggle Key:");
+                        ImGui::SameLine();
+                        ImGuiKey old_key = state::toggle_key;
+
+                        Keybind(" ", state::toggle_key, state::is_waiting_for_key);
+                        if (old_key != state::toggle_key) {
+                            state::toggle_key_vk = ImGuiKeyToVirtualKey(state::toggle_key);
+                        }
+                        ImGui::Separator();
+                        ImGui::Text(u8"帧率: %.1f FPS", ImGui::GetIO().Framerate);
+                        
+                        if (!menu::quit::show_exit_confirmation)
+                        {
+                            if (ImGui::Button(u8"退出"))
+                            {
+                                // 当点击时，我们不直接退出，而是改变状态，让确认对话框显示出来
+                                menu::quit::show_exit_confirmation = true;
+                            }
+                        }
+
+                        // 2. 根据状态变量，决定是否绘制确认对话框
+                        if (menu::quit::show_exit_confirmation)
+                        {
+                            ImGui::Text(u8"您确定要退出吗？"); // 提示信息
+
+                            // 绘制“确定”按钮
+                            if (ImGui::Button(u8"确定"))
+                            {
+                                // 在这里执行真正的退出操作
+                                std::exit(EXIT_SUCCESS);
+
+                                // 并且关闭确认对话框（以防万一退出操作不是立即的）
+                                menu::quit::show_exit_confirmation = false;
+                            }
+
+                            ImGui::SameLine(); // 让下一个控件和上一个在同一行
+
+                            // 绘制“取消”按钮
+                            if (ImGui::Button(u8"取消"))
+                            {
+                                // 如果用户取消，我们只需改变状态，隐藏确认对话框
+                                menu::quit::show_exit_confirmation = false;
+                            }
+                        }
+
+                        break;
+                    }
                 }
             }
-            ImGui::EndChild(); // 结束内容区域子窗口
+            ImGui::EndChild();
         }
-        ImGui::End(); // 结束 "Menu" 主窗口
+        ImGui::End();
     }
 }
