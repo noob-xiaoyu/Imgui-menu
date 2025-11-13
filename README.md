@@ -52,7 +52,6 @@
 ## 📦 依赖项
 
 -   [Dear ImGui](https://github.com/ocornut/imgui): 主 UI 库。
--   [GLFW](https://www.glfw.org/): 用于窗口和输入管理。
 
 ## 📜 许可证
 
