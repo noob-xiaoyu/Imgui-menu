@@ -1,4 +1,4 @@
-﻿/*// main.cpp
+/*// main.cpp
 // --- 核心头文件 ---
 #include <cstdio>
 #include <iostream>
@@ -286,7 +286,7 @@ int main() {
 
 // main.cpp (Simplified & Refactored)
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <Windows.h>
 #include <d3d11.h>
 #include <stdint.h>
 #include <tchar.h>
@@ -348,13 +348,13 @@ void UninstallGlobalHotkey() {
 #else
 // 在非 Windows 平台上提供空的实现，以保证代码可以编译通过
 void InstallGlobalHotkey() {
-    std::cout << "信息: 当前平台不支持全局热键。" << std::endl;
+    std::cout << u8"信息: 当前平台不支持全局热键。" << std::endl;
 }
 void UninstallGlobalHotkey() {
     if (g_keyboardHook) {
         UnhookWindowsHookEx(g_keyboardHook);
         g_keyboardHook = NULL;
-        std::cout << "信息: 全局键盘钩子已卸载。" << std::endl;
+        std::cout << u8"信息: 全局键盘钩子已卸载。" << std::endl;
     }
 }
 #endif
@@ -416,19 +416,20 @@ int GetMonitorRefreshRate(HWND hwnd)
     }
 
     // 如果 EnumDisplaySettings 也失败了，返回默认值
-    return 60;
+    return 999;
 }
 
 // --- Main ---
 int main()
 {
+    SetConsoleOutputCP(CP_UTF8);
     // Register window class
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0, 0, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGuiLayered", nullptr };
     RegisterClassExW(&wc);
 
     // Create a layered, popup window
     g_hWnd = CreateWindowExW(
-        WS_EX_LAYERED, wc.lpszClassName, L"ImGui Layered (DX11 -> UpdateLayeredWindow)",
+        WS_EX_LAYERED, wc.lpszClassName, L"Hello World",
         WS_POPUP | WS_VISIBLE, 100, 100, (int)g_width, (int)g_height, nullptr, nullptr, wc.hInstance, nullptr);
     if (!g_hWnd) return 1;
 
@@ -515,10 +516,10 @@ int main()
         ImGui::NewFrame();
 
         // --- Your UI here ---
-        //ImGui::ShowDemoWindow();
+        
         if (false) {
             ImGui::Begin("Info");
-            ImGui::Checkbox(u8"开关", &menu::state::visible);
+            ImGui::Checkbox("开关", &menu::state::visible);
             if (ImGui::Button("load hook")) {
                 InstallGlobalHotkey();
             }
@@ -532,6 +533,7 @@ int main()
         if (menu::state::visible) {
             ImGui::SetNextWindowSize(ImVec2(1300, 900), ImGuiCond_Once);
             menu::draw();
+            //ImGui::ShowDemoWindow();
             //printf("draw\n");
         }
 

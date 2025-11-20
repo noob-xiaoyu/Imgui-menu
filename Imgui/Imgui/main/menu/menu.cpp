@@ -4,22 +4,24 @@
 #include <vector>
 #include <string>
 #include <main/ThemeManager/ThemeManager.h>
-
+#include <filesystem>
+#include <Shlobj.h>
 #include "../CustomWidgets/CustomWidgets.h"
 #include "Theme.h"
 #include <GLFW/glfw3.h>
 #include <main/main.h>
 #include <iostream>
+#pragma comment(lib, "shell32.lib")
 namespace menu {
     int ImGuiKeyToVirtualKey(ImGuiKey key) {
-        // Ê¹ÓÃ switch Óï¾ä´¦Àí·Ç×ÖÄ¸ºÍÊı×ÖµÄÌØÊâ°´¼ü
+        // ä½¿ç”¨ switch è¯­å¥å¤„ç†éå­—æ¯å’Œæ•°å­—çš„ç‰¹æ®ŠæŒ‰é”®
         switch (key) {
         case ImGuiKey_Insert:       return VK_INSERT;
         case ImGuiKey_Delete:       return VK_DELETE;
         case ImGuiKey_Home:         return VK_HOME;
         case ImGuiKey_End:          return VK_END;
-        case ImGuiKey_PageUp:       return VK_PRIOR;  // VK_PRIOR ÊÇ PageUp µÄĞéÄâÂë
-        case ImGuiKey_PageDown:     return VK_NEXT;   // VK_NEXT ÊÇ PageDown µÄĞéÄâÂë
+        case ImGuiKey_PageUp:       return VK_PRIOR;  // VK_PRIOR æ˜¯ PageUp çš„è™šæ‹Ÿç 
+        case ImGuiKey_PageDown:     return VK_NEXT;   // VK_NEXT æ˜¯ PageDown çš„è™šæ‹Ÿç 
         case ImGuiKey_LeftArrow:    return VK_LEFT;
         case ImGuiKey_RightArrow:   return VK_RIGHT;
         case ImGuiKey_UpArrow:      return VK_UP;
@@ -41,58 +43,57 @@ namespace menu {
         case ImGuiKey_F11:          return VK_F11;
         case ImGuiKey_F12:          return VK_F12;
         }
-        // Èç¹ûÊÇ×ÖÄ¸ A µ½ Z£¬Í¨¹ı¼ÆËãÆ«ÒÆÁ¿µÃ³ö¶ÔÓ¦µÄ ASCII/VK Âë
+        // å¦‚æœæ˜¯å­—æ¯ A åˆ° Zï¼Œé€šè¿‡è®¡ç®—åç§»é‡å¾—å‡ºå¯¹åº”çš„ ASCII/VK ç 
         if (key >= ImGuiKey_A && key <= ImGuiKey_Z) return 'A' + (key - ImGuiKey_A);
-        // Èç¹ûÊÇÊı×Ö 0 µ½ 9£¬Í¬ÑùÍ¨¹ı¼ÆËãÆ«ÒÆÁ¿µÃ³ö
+        // å¦‚æœæ˜¯æ•°å­— 0 åˆ° 9ï¼ŒåŒæ ·é€šè¿‡è®¡ç®—åç§»é‡å¾—å‡º
         if (key >= ImGuiKey_0 && key <= ImGuiKey_9) return '0' + (key - ImGuiKey_0);
-        // Èç¹ûÃ»ÓĞÕÒµ½¶ÔÓ¦µÄ°´¼ü£¬·µ»Ø 0
+        // å¦‚æœæ²¡æœ‰æ‰¾åˆ°å¯¹åº”çš„æŒ‰é”®ï¼Œè¿”å› 0
         return 0;
     }
     void Keybind(const char* label, ImGuiKey& key_to_change, bool& is_waiting_flag) {
-        // Èç¹ûµ±Ç°²»´¦ÓÚ¡°µÈ´ı°´¼ü¡±×´Ì¬
+        // å¦‚æœå½“å‰ä¸å¤„äºâ€œç­‰å¾…æŒ‰é”®â€çŠ¶æ€
         if (!is_waiting_flag) {
-            // ¹¹½¨°´Å¥ÉÏÏÔÊ¾µÄÎÄ±¾£¬¸ñÊ½Îª "±êÇ©: [°´¼üÃû]"
+            // æ„å»ºæŒ‰é’®ä¸Šæ˜¾ç¤ºçš„æ–‡æœ¬ï¼Œæ ¼å¼ä¸º "æ ‡ç­¾: [æŒ‰é”®å]"
             std::string button_label = std::string(label)+"[" + ImGui::GetKeyName(key_to_change) + "]";
-            // ´´½¨Ò»¸ö°´Å¥£¬Èç¹û±»µã»÷
+            // åˆ›å»ºä¸€ä¸ªæŒ‰é’®ï¼Œå¦‚æœè¢«ç‚¹å‡»
             if (ImGui::Button(button_label.c_str())) {
-                // ½«×´Ì¬±êÖ¾ÉèÖÃÎª true£¬½øÈë¡°µÈ´ı°´¼ü¡±×´Ì¬
+                // å°†çŠ¶æ€æ ‡å¿—è®¾ç½®ä¸º trueï¼Œè¿›å…¥â€œç­‰å¾…æŒ‰é”®â€çŠ¶æ€
                 is_waiting_flag = true;
             }
         }
-        // Èç¹ûµ±Ç°´¦ÓÚ¡°µÈ´ı°´¼ü¡±×´Ì¬
+        // å¦‚æœå½“å‰å¤„äºâ€œç­‰å¾…æŒ‰é”®â€çŠ¶æ€
         else {
-            // ÏÔÊ¾Ò»¸öÌáÊ¾ÓÃ»§°´¼üµÄ°´Å¥
+            // æ˜¾ç¤ºä¸€ä¸ªæç¤ºç”¨æˆ·æŒ‰é”®çš„æŒ‰é’®
             ImGui::Button("...Press any key...");
-            // ±éÀúËùÓĞ ImGui Ö§³ÖµÄÃüÃû°´¼ü
+            // éå†æ‰€æœ‰ ImGui æ”¯æŒçš„å‘½åæŒ‰é”®
             for (int key_code = ImGuiKey_NamedKey_BEGIN; key_code < ImGuiKey_NamedKey_END; key_code++) {
                 ImGuiKey key_it = static_cast<ImGuiKey>(key_code);
-                // ¼ì²éµ±Ç°Ö¡ÊÇ·ñÓĞ°´¼ü±»°´ÏÂ£¨false ±íÊ¾Ö»´¥·¢Ò»´Î£©
+                // æ£€æŸ¥å½“å‰å¸§æ˜¯å¦æœ‰æŒ‰é”®è¢«æŒ‰ä¸‹ï¼ˆfalse è¡¨ç¤ºåªè§¦å‘ä¸€æ¬¡ï¼‰
                 if (ImGui::IsKeyPressed(key_it, false)) {
-                    // Èç¹û°´ÏÂµÄÊÇ Escape ¼ü£¬Ôò½«°´¼ü°ó¶¨ÉèÖÃÎª¿Õ (None)
+                    // å¦‚æœæŒ‰ä¸‹çš„æ˜¯ Escape é”®ï¼Œåˆ™å°†æŒ‰é”®ç»‘å®šè®¾ç½®ä¸ºç©º (None)
                     if (key_it == ImGuiKey_Escape) {
                         key_to_change = ImGuiKey_None;
                     }
-                    // ·ñÔò£¬¸üĞÂ°ó¶¨µÄ°´¼üÎªÓÃ»§°´ÏÂµÄ¼ü
+                    // å¦åˆ™ï¼Œæ›´æ–°ç»‘å®šçš„æŒ‰é”®ä¸ºç”¨æˆ·æŒ‰ä¸‹çš„é”®
                     else {
                         key_to_change = key_it;
                     }
-                    // ½«×´Ì¬±êÖ¾ÉèÖÃ»Ø false£¬ÍË³ö¡°µÈ´ı°´¼ü¡±×´Ì¬
+                    // å°†çŠ¶æ€æ ‡å¿—è®¾ç½®å› falseï¼Œé€€å‡ºâ€œç­‰å¾…æŒ‰é”®â€çŠ¶æ€
                     is_waiting_flag = false;
-                    std::cout << "ÈÈ¼ü¸üĞÂ:" << ImGui::GetKeyName(key_to_change) << std::endl;
-                    // °´¼üÒÑ²¶»ñ£¬Ìø³öÑ­»·
+                    std::cout << "çƒ­é”®æ›´æ–°:" << ImGui::GetKeyName(key_to_change) << std::endl;
+                    // æŒ‰é”®å·²æ•è·ï¼Œè·³å‡ºå¾ªç¯
                     break;
                 }
             }
         }
     }
-    //static ImGuiWindowFlags demo_window_flags = ImGuiWindowFlags_MenuBar;
     void draw() {
         static const std::vector<const char*> menu_tabs = { "a", "Visuals", "c", "d","Settings"};
         static int active_tab = 0;
         //auto& app = ImGuiFramework::Application::Get();
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse;
         if (menu::Settings::lock_window_size) {
-            // Ê¹ÓÃÎ»»ò¸³Öµ²Ù×÷·û (|=) À´Ìí¼ÓĞÂ±êÖ¾£¬Í¬Ê±±£ÁôÔ­ÓĞ±êÖ¾
+            // ä½¿ç”¨ä½æˆ–èµ‹å€¼æ“ä½œç¬¦ (|=) æ¥æ·»åŠ æ–°æ ‡å¿—ï¼ŒåŒæ—¶ä¿ç•™åŸæœ‰æ ‡å¿—
             window_flags |= ImGuiWindowFlags_NoResize;
         }
         ImGui::Begin("Menu", &state::visible, window_flags); {
@@ -120,23 +121,23 @@ namespace menu {
                         ImGui::Text("This is the a Page.");
                         
                         
-                        ImGui::Text(u8"ÕâÀïÊÇÒ»Ğ©ÖĞÎÄ×Ö·û: ÄãºÃ, ImGui!");
+                        ImGui::Text(u8"è¿™é‡Œæ˜¯ä¸€äº›ä¸­æ–‡å­—ç¬¦: ä½ å¥½, ImGui!");
                         break;
                     }
                     case 1: {
                         ImGui::TableNextColumn();
-                        ImGui::SeparatorText(u8"Êó±êÍÏÎ²");
+                        ImGui::SeparatorText(u8"é¼ æ ‡æ‹–å°¾");
 
-                        ImGui::Checkbox(u8"ÆôÓÃÍÏÎ²", &menu::Visuals::mouse_trail::Enabled);
+                        ImGui::Checkbox(u8"å¯ç”¨æ‹–å°¾", &menu::Visuals::mouse_trail::Enabled);
                         if (menu::Visuals::mouse_trail::Enabled)
                         {
-                            // Ê¹ÓÃ DragInt ºÍ DragFloat À´µ÷Õû²ÎÊı
-                            ImGui::DragInt(u8"ÍÏÎ²³¤¶È", &menu::Visuals::mouse_trail::MaxLength, 1.0f, 10, 2000);
-                            ImGui::DragFloat(u8"³õÊ¼´ÖÏ¸", &menu::Visuals::mouse_trail::StartThickness, 0.1f, 1.0f, 10.0f);
+                            // ä½¿ç”¨ DragInt å’Œ DragFloat æ¥è°ƒæ•´å‚æ•°
+                            ImGui::DragInt(u8"æ‹–å°¾é•¿åº¦", &menu::Visuals::mouse_trail::MaxLength, 1.0f, 10, 2000);
+                            ImGui::DragFloat(u8"åˆå§‹ç²—ç»†", &menu::Visuals::mouse_trail::StartThickness, 0.1f, 1.0f, 10.0f);
 
-                            // Ê¹ÓÃ ColorEdit4 À´µ÷ÕûÑÕÉ«
+                            // ä½¿ç”¨ ColorEdit4 æ¥è°ƒæ•´é¢œè‰²
                             ImVec4 color_vec = ImGui::ColorConvertU32ToFloat4(menu::Visuals::mouse_trail::StartColor);
-                            if (ImGui::ColorEdit4(u8"ÍÏÎ²ÑÕÉ«", &color_vec.x)) {
+                            if (ImGui::ColorEdit4(u8"æ‹–å°¾é¢œè‰²", &color_vec.x)) {
                                 menu::Visuals::mouse_trail::StartColor = ImGui::ColorConvertFloat4ToU32(color_vec);
                             }
                         }
@@ -151,7 +152,7 @@ namespace menu {
                     case 3: {
                         ImGui::Text("This is the d Page.");
                         ImGui::TextWrapped("This is some long text that will wrap to the next line.");
-                        ImGui::TextWrapped(u8"ÕâÊÇÒ»¶Î½Ï³¤µÄÎÄ±¾£¬½«×Ô¶¯»»ĞĞ¡£");
+                        ImGui::TextWrapped(u8"è¿™æ˜¯ä¸€æ®µè¾ƒé•¿çš„æ–‡æœ¬ï¼Œå°†è‡ªåŠ¨æ¢è¡Œã€‚");
                         break;
                     }
                     case 4: { // Settings Page
@@ -160,31 +161,31 @@ namespace menu {
 
                         ImGui::Text("Theme Selector");
 
-                        // ImGui::RadioButton ·µ»Ø true µ±Ëü±»µã»÷Ê±
-                        // ÕâÑùÎÒÃÇÖ»ÔÚÖ÷Ìâ±»ÇĞ»»Ê±²Åµ÷ÓÃÑùÊ½º¯Êı£¬Ğ§ÂÊ¸ü¸ß
+                        // ImGui::RadioButton è¿”å› true å½“å®ƒè¢«ç‚¹å‡»æ—¶
+                        // è¿™æ ·æˆ‘ä»¬åªåœ¨ä¸»é¢˜è¢«åˆ‡æ¢æ—¶æ‰è°ƒç”¨æ ·å¼å‡½æ•°ï¼Œæ•ˆç‡æ›´é«˜
                         static_assert(IM_ARRAYSIZE(theme_names) == static_cast<int>(menu::Theme::COUNT), "Theme names array size does not match Theme enum count!");
                         const char* current_theme_name = theme_names[static_cast<int>(menu::Theme::COUNT)];
                         int current_theme_idx = static_cast<int>(Settings::current_theme);
 
-                        // Ìí¼ÓÒ»¸ö°²È«¼ì²é£¬·ÀÖ¹Ë÷ÒıÔ½½ç¡£Èç¹û current_theme Î´³õÊ¼»¯£¬ÕâºÜÖØÒª¡£
+                        // æ·»åŠ ä¸€ä¸ªå®‰å…¨æ£€æŸ¥ï¼Œé˜²æ­¢ç´¢å¼•è¶Šç•Œã€‚å¦‚æœ current_theme æœªåˆå§‹åŒ–ï¼Œè¿™å¾ˆé‡è¦ã€‚
                         if (current_theme_idx < 0 || current_theme_idx >= IM_ARRAYSIZE(theme_names)) {
-                            current_theme_idx = 0; // Èç¹ûË÷ÒıÎŞĞ§£¬¾ÍÄ¬ÈÏÑ¡ÖĞµÚÒ»¸ö
+                            current_theme_idx = 0; // å¦‚æœç´¢å¼•æ— æ•ˆï¼Œå°±é»˜è®¤é€‰ä¸­ç¬¬ä¸€ä¸ª
                         }
                         const char* preview_value = theme_names[current_theme_idx];
-                        if (ImGui::BeginCombo(u8"Ö÷Ìâ", preview_value))
+                        if (ImGui::BeginCombo(u8"ä¸»é¢˜", preview_value))
                         {
-                            // 4. ±éÀúËùÓĞÖ÷ÌâÑ¡Ïî
+                            // 4. éå†æ‰€æœ‰ä¸»é¢˜é€‰é¡¹
                             for (int i = 0; i < static_cast<int>(menu::Theme::COUNT); ++i)
                             {
-                                // ÅĞ¶Ïµ±Ç°±éÀúµ½µÄÑ¡ÏîÊÇ·ñÊÇÒÑ¾­±»Ñ¡ÖĞµÄ
+                                // åˆ¤æ–­å½“å‰éå†åˆ°çš„é€‰é¡¹æ˜¯å¦æ˜¯å·²ç»è¢«é€‰ä¸­çš„
                                 const bool is_selected = (static_cast<int>(Settings::current_theme) == i);
 
-                                // Ê¹ÓÃ Selectable ´´½¨Ò»¸ö¿ÉÑ¡ÔñµÄĞĞ
+                                // ä½¿ç”¨ Selectable åˆ›å»ºä¸€ä¸ªå¯é€‰æ‹©çš„è¡Œ
                                 if (ImGui::Selectable(theme_names[i], is_selected))
                                 {
-                                    // Èç¹ûÓÃ»§µã»÷ÁËÕâ¸öÑ¡Ïî£¬¾Í¸üĞÂµ±Ç°Ö÷Ìâ
+                                    // å¦‚æœç”¨æˆ·ç‚¹å‡»äº†è¿™ä¸ªé€‰é¡¹ï¼Œå°±æ›´æ–°å½“å‰ä¸»é¢˜
                                     Settings::current_theme = static_cast<menu::Theme>(i);
-                                    // 5. ¸ù¾İĞÂµÄÑ¡Ôñ£¬Ó¦ÓÃ¶ÔÓ¦µÄÖ÷Ìâ
+                                    // 5. æ ¹æ®æ–°çš„é€‰æ‹©ï¼Œåº”ç”¨å¯¹åº”çš„ä¸»é¢˜
                                     switch (Settings::current_theme)
                                     {
                                     case menu::Theme::Dark:
@@ -206,89 +207,89 @@ namespace menu {
                                     }
                                 }
 
-                                // Èç¹ûÕâ¸öÑ¡ÏîÊÇ±»Ñ¡ÖĞµÄ£¬ÔòÄ¬ÈÏ½«½¹µãÉèÖÃµ½ËüÉÏÃæ£¬
-                                // ÕâÑùÏÂ´Î´ò¿ªÏÂÀ­¿òÊ±£¬ÁĞ±í»á×Ô¶¯¹ö¶¯µ½Ñ¡ÖĞÏî
+                                // å¦‚æœè¿™ä¸ªé€‰é¡¹æ˜¯è¢«é€‰ä¸­çš„ï¼Œåˆ™é»˜è®¤å°†ç„¦ç‚¹è®¾ç½®åˆ°å®ƒä¸Šé¢ï¼Œ
+                                // è¿™æ ·ä¸‹æ¬¡æ‰“å¼€ä¸‹æ‹‰æ¡†æ—¶ï¼Œåˆ—è¡¨ä¼šè‡ªåŠ¨æ»šåŠ¨åˆ°é€‰ä¸­é¡¹
                                 if (is_selected)
                                 {
                                     ImGui::SetItemDefaultFocus();
                                 }
                             }
 
-                            // 6. ½áÊøÏÂÀ­¿ò
+                            // 6. ç»“æŸä¸‹æ‹‰æ¡†
                             ImGui::EndCombo();
                         }
 
-                        ImGui::Text(u8"Ö÷Ìâ¹ÜÀí");
+                        ImGui::Text(u8"ä¸»é¢˜ç®¡ç†");
                         ImGui::Separator();
 
-                        // 1. ÑùÊ½±à¼­Æ÷
+                        // 1. æ ·å¼ç¼–è¾‘å™¨
                         static bool show_style_editor = false;
-                        ImGui::Checkbox(u8"ÏÔÊ¾ÊµÊ±ÑùÊ½±à¼­Æ÷", &show_style_editor);
+                        ImGui::Checkbox(u8"æ˜¾ç¤ºå®æ—¶æ ·å¼ç¼–è¾‘å™¨", &show_style_editor);
                         if (show_style_editor) {
-                            ImGui::Begin(u8"ÑùÊ½±à¼­Æ÷", &show_style_editor, window_flags);
-                            ImGui::ShowTranslatedStyleEditor(); 
+                            ImGui::Begin(u8"æ ·å¼ç¼–è¾‘å™¨", &show_style_editor, window_flags);
+                            ImGui::ShowStyleEditor();
                             ImGui::End();
-                           /* ImGui::Begin(u8"ÑùÊ½±à¼­Æ÷Ô­°æ", &show_style_editor);
+                           /* ImGui::Begin(u8"æ ·å¼ç¼–è¾‘å™¨åŸç‰ˆ", &show_style_editor);
                             ImGui::ShowStyleEditor();
                             ImGui::End();*/
                         }
 
                         ImGui::Spacing();
 
-                        // 2. ±£´æµ±Ç°Ö÷Ìâ
+                        // 2. ä¿å­˜å½“å‰ä¸»é¢˜
                         static char theme_filename[128];
                         
 
                         ImGui::Separator();
 
-                        // 3. ¼ÓÔØÒÑÓĞÖ÷Ìâ
-                        ImGui::Text(u8"¼ÓÔØÖ÷Ìâ");
+                        // 3. åŠ è½½å·²æœ‰ä¸»é¢˜
+                        ImGui::Text(u8"åŠ è½½ä¸»é¢˜");
                         static std::vector<std::string> themes = ThemeManager::GetAvailableThemes();
                         static int selected_theme = -1;
 
-                        // ÓÃÓÚ ImGui::ListBox µÄ C ·ç¸ñ×Ö·û´®Êı×é
+                        // ç”¨äº ImGui::ListBox çš„ C é£æ ¼å­—ç¬¦ä¸²æ•°ç»„
                         std::vector<const char*> theme_cstrs;
                         for (const auto& theme : themes) {
                             theme_cstrs.push_back(theme.c_str());
                         }
 
-                        if (ImGui::Button(u8"Ë¢ĞÂÁĞ±í")) {
+                        if (ImGui::Button(u8"åˆ·æ–°åˆ—è¡¨")) {
                             themes = ThemeManager::GetAvailableThemes();
                         }
                         ImGui::SameLine();
-                        if (ImGui::Button(u8"±£´æµ±Ç°Ö÷Ìâ")) {
-                            // --- ĞÂÔö´úÂë¿ªÊ¼ ---
-                            // ÎªÁË·½±ã´¦Àí×Ö·û´®£¬ÎÒÃÇÏÈ½« C ·ç¸ñµÄ char Êı×é×ª»»Îª std::string
+                        if (ImGui::Button(u8"ä¿å­˜å½“å‰ä¸»é¢˜")) {
+                            // --- æ–°å¢ä»£ç å¼€å§‹ ---
+                            // ä¸ºäº†æ–¹ä¾¿å¤„ç†å­—ç¬¦ä¸²ï¼Œæˆ‘ä»¬å…ˆå°† C é£æ ¼çš„ char æ•°ç»„è½¬æ¢ä¸º std::string
                             std::string filename_str(theme_filename);
 
-                            // 1. ¼ì²éÎÄ¼şÃûÊÇ·ñÎª¿Õ
+                            // 1. æ£€æŸ¥æ–‡ä»¶åæ˜¯å¦ä¸ºç©º
                             if (!filename_str.empty()) {
                                 const std::string extension = ".ini";
                                 bool needs_extension = true;
 
-                                // 2. ¼ì²éÎÄ¼şÃû³¤¶ÈÊÇ·ñ×ã¹»£¬²¢ÇÒÊÇ·ñÒÑ¾­ÒÔ ".ini" ½áÎ²
+                                // 2. æ£€æŸ¥æ–‡ä»¶åé•¿åº¦æ˜¯å¦è¶³å¤Ÿï¼Œå¹¶ä¸”æ˜¯å¦å·²ç»ä»¥ ".ini" ç»“å°¾
                                 if (filename_str.length() >= extension.length()) {
-                                    // ±È½Ï×Ö·û´®µÄ×îºó¼¸¸ö×Ö·û
+                                    // æ¯”è¾ƒå­—ç¬¦ä¸²çš„æœ€åå‡ ä¸ªå­—ç¬¦
                                     if (filename_str.substr(filename_str.length() - extension.length()) == extension) {
                                         needs_extension = false;
                                     }
                                 }
 
-                                // 3. Èç¹ûĞèÒª£¬¾ÍÌí¼ÓÀ©Õ¹Ãû
+                                // 3. å¦‚æœéœ€è¦ï¼Œå°±æ·»åŠ æ‰©å±•å
                                 if (needs_extension) {
                                     filename_str += extension;
-                                    // ½«ĞŞ¸ÄºóµÄ×Ö·û´®¸´ÖÆ»ØÔ­À´µÄ char Êı×é
-                                    // ÕâÑù InputText ºÍ SaveTheme º¯Êı¶¼ÄÜ»ñÈ¡µ½ÕıÈ·µÄÎÄ¼şÃû
+                                    // å°†ä¿®æ”¹åçš„å­—ç¬¦ä¸²å¤åˆ¶å›åŸæ¥çš„ char æ•°ç»„
+                                    // è¿™æ · InputText å’Œ SaveTheme å‡½æ•°éƒ½èƒ½è·å–åˆ°æ­£ç¡®çš„æ–‡ä»¶å
                                     strncpy_s(theme_filename, filename_str.c_str(), sizeof(theme_filename));
                                 }
                             }
-                            // --- ĞÂÔö´úÂë½áÊø ---
+                            // --- æ–°å¢ä»£ç ç»“æŸ ---
 
-                            // Ê¹ÓÃ¿ÉÄÜÒÑ¾­±»ĞŞ¸Ä¹ıµÄ theme_filename À´±£´æÖ÷Ìâ
+                            // ä½¿ç”¨å¯èƒ½å·²ç»è¢«ä¿®æ”¹è¿‡çš„ theme_filename æ¥ä¿å­˜ä¸»é¢˜
                             ThemeManager::SaveTheme(theme_filename);
-                            themes = ThemeManager::GetAvailableThemes(); // ±£´æºóË¢ĞÂÁĞ±í
+                            themes = ThemeManager::GetAvailableThemes(); // ä¿å­˜ååˆ·æ–°åˆ—è¡¨
                         }
-                        ImGui::InputText(u8"ÎÄ¼şÃû", theme_filename, sizeof(theme_filename));
+                        ImGui::InputText(u8"æ–‡ä»¶å", theme_filename, sizeof(theme_filename));
                         if (!themes.empty()) {
                             std::vector<const char*> theme_cstrs;
                             for (const auto& theme : themes) {
@@ -296,35 +297,39 @@ namespace menu {
                             }
                             if (ImGui::ListBox("##ThemesList", &selected_theme, theme_cstrs.data(), static_cast<int>(theme_cstrs.size())))
                             {
-                                // µ± ListBox ·µ»Ø true Ê±£¬ÒâÎ¶×Å selected_theme ¸Õ¸Õ±»ÓÃ»§¸Ä±äÁË
-                                // ÎÒÃÇ¾ÍÔÚÕâÀï¸üĞÂÎÄ¼şÃûÊäÈë¿òµÄÄÚÈİ
+                                // å½“ ListBox è¿”å› true æ—¶ï¼Œæ„å‘³ç€ selected_theme åˆšåˆšè¢«ç”¨æˆ·æ”¹å˜äº†
+                                // æˆ‘ä»¬å°±åœ¨è¿™é‡Œæ›´æ–°æ–‡ä»¶åè¾“å…¥æ¡†çš„å†…å®¹
                                 if (selected_theme >= 0 && selected_theme < themes.size()) {
-                                    // °²È«µØ½« std::string ¸´ÖÆµ½ C ·ç¸ñµÄ char Êı×éÖĞ
+                                    // å®‰å…¨åœ°å°† std::string å¤åˆ¶åˆ° C é£æ ¼çš„ char æ•°ç»„ä¸­
                                     const std::string& selected_name = themes[selected_theme];
                                     strncpy_s(theme_filename, selected_name.c_str(), sizeof(theme_filename) - 1);
-                                    theme_filename[sizeof(theme_filename) - 1] = '\0'; // È·±£×Ö·û´®ÒÔ¿Õ×Ö·û½áÎ²
+                                    theme_filename[sizeof(theme_filename) - 1] = '\0'; // ç¡®ä¿å­—ç¬¦ä¸²ä»¥ç©ºå­—ç¬¦ç»“å°¾
                                 }
                             }
 
-                            // --- ¼ÓÔØ°´Å¥ ---
+                            // --- åŠ è½½æŒ‰é’® ---
                             ImGui::SameLine();
-                            // ¼ì²éÑ¡ÖĞÏîÊÇ·ñÓĞĞ§
+                            // æ£€æŸ¥é€‰ä¸­é¡¹æ˜¯å¦æœ‰æ•ˆ
                             bool is_selection_valid = (selected_theme >= 0 && selected_theme < themes.size());
 
-                            // Èç¹ûÃ»ÓĞÓĞĞ§Ñ¡Ïî£¬Ôò½ûÓÃ°´Å¥
+                            // å¦‚æœæ²¡æœ‰æœ‰æ•ˆé€‰é¡¹ï¼Œåˆ™ç¦ç”¨æŒ‰é’®
                             ImGui::BeginDisabled(!is_selection_valid);
-                            if (ImGui::Button(u8"¼ÓÔØÑ¡ÖĞÏî")) {
-                                ThemeManager::LoadTheme(themes[selected_theme]);
+                            if (ImGui::Button(u8"åŠ è½½é€‰ä¸­é¡¹")) {
+                                bool success = ThemeManager::LoadTheme(themes[selected_theme]);
+                                if (!success) {
+                                    // å¯ä»¥åœ¨è¿™é‡Œå¤„ç†åŠ è½½å¤±è´¥çš„æƒ…å†µï¼Œæ¯”å¦‚å¼¹å‡ºä¸€ä¸ªé”™è¯¯æç¤ºçª—å£
+                                    // ImGui::OpenPopup("Load Error");
+                                }
                             }
                             ImGui::EndDisabled();
                         }
                         
                         else {
-                            ImGui::Text(u8"ÔÚ 'themes' ÎÄ¼ş¼ĞÖĞÎ´ÕÒµ½ÈÎºÎÖ÷Ìâ¡£");
+                            ImGui::Text(u8"åœ¨ 'themes' æ–‡ä»¶å¤¹ä¸­æœªæ‰¾åˆ°ä»»ä½•ä¸»é¢˜ã€‚");
                         }
                         
                         ImGui::Separator();
-                        ImGui::Checkbox(u8"Ëø¶¨²Ëµ¥²¼¾Ö", &menu::Settings::lock_window_size);
+                        ImGui::Checkbox(u8"é”å®šèœå•å¸ƒå±€", &menu::Settings::lock_window_size);
                         ImGui::Text("Menu Toggle Key:");
                         ImGui::SameLine();
                         ImGuiKey old_key = state::toggle_key;
@@ -337,38 +342,38 @@ namespace menu {
                         
 
                         ImGui::Separator();
-                        ImGui::Text(u8"Ö¡ÂÊ: %.1f FPS", ImGui::GetIO().Framerate);
+                        ImGui::Text(u8"å¸§ç‡: %.1f FPS", ImGui::GetIO().Framerate);
                         ImGui::Separator();
                         if (!menu::quit::show_exit_confirmation)
                         {
-                            if (ImGui::Button(u8"ÍË³ö"))
+                            if (ImGui::Button(u8"é€€å‡º"))
                             {
-                                // µ±µã»÷Ê±£¬ÎÒÃÇ²»Ö±½ÓÍË³ö£¬¶øÊÇ¸Ä±ä×´Ì¬£¬ÈÃÈ·ÈÏ¶Ô»°¿òÏÔÊ¾³öÀ´
+                                // å½“ç‚¹å‡»æ—¶ï¼Œæˆ‘ä»¬ä¸ç›´æ¥é€€å‡ºï¼Œè€Œæ˜¯æ”¹å˜çŠ¶æ€ï¼Œè®©ç¡®è®¤å¯¹è¯æ¡†æ˜¾ç¤ºå‡ºæ¥
                                 menu::quit::show_exit_confirmation = true;
                             }
                         }
 
-                        // 2. ¸ù¾İ×´Ì¬±äÁ¿£¬¾ö¶¨ÊÇ·ñ»æÖÆÈ·ÈÏ¶Ô»°¿ò
+                        // 2. æ ¹æ®çŠ¶æ€å˜é‡ï¼Œå†³å®šæ˜¯å¦ç»˜åˆ¶ç¡®è®¤å¯¹è¯æ¡†
                         if (menu::quit::show_exit_confirmation)
                         {
-                            ImGui::Text(u8"ÄúÈ·¶¨ÒªÍË³öÂğ£¿"); // ÌáÊ¾ĞÅÏ¢
+                            ImGui::Text(u8"æ‚¨ç¡®å®šè¦é€€å‡ºå—ï¼Ÿ"); // æç¤ºä¿¡æ¯
 
-                            // »æÖÆ¡°È·¶¨¡±°´Å¥
-                            if (ImGui::Button(u8"È·¶¨"))
+                            // ç»˜åˆ¶â€œç¡®å®šâ€æŒ‰é’®
+                            if (ImGui::Button(u8"ç¡®å®š"))
                             {
-                                // ÔÚÕâÀïÖ´ĞĞÕæÕıµÄÍË³ö²Ù×÷
+                                // åœ¨è¿™é‡Œæ‰§è¡ŒçœŸæ­£çš„é€€å‡ºæ“ä½œ
                                 std::exit(EXIT_SUCCESS);
 
-                                // ²¢ÇÒ¹Ø±ÕÈ·ÈÏ¶Ô»°¿ò£¨ÒÔ·ÀÍòÒ»ÍË³ö²Ù×÷²»ÊÇÁ¢¼´µÄ£©
+                                // å¹¶ä¸”å…³é—­ç¡®è®¤å¯¹è¯æ¡†ï¼ˆä»¥é˜²ä¸‡ä¸€é€€å‡ºæ“ä½œä¸æ˜¯ç«‹å³çš„ï¼‰
                                 menu::quit::show_exit_confirmation = false;
                             }
 
-                            ImGui::SameLine(); // ÈÃÏÂÒ»¸ö¿Ø¼şºÍÉÏÒ»¸öÔÚÍ¬Ò»ĞĞ
+                            ImGui::SameLine(); // è®©ä¸‹ä¸€ä¸ªæ§ä»¶å’Œä¸Šä¸€ä¸ªåœ¨åŒä¸€è¡Œ
 
-                            // »æÖÆ¡°È¡Ïû¡±°´Å¥
-                            if (ImGui::Button(u8"È¡Ïû"))
+                            // ç»˜åˆ¶â€œå–æ¶ˆâ€æŒ‰é’®
+                            if (ImGui::Button(u8"å–æ¶ˆ"))
                             {
-                                // Èç¹ûÓÃ»§È¡Ïû£¬ÎÒÃÇÖ»Ğè¸Ä±ä×´Ì¬£¬Òş²ØÈ·ÈÏ¶Ô»°¿ò
+                                // å¦‚æœç”¨æˆ·å–æ¶ˆï¼Œæˆ‘ä»¬åªéœ€æ”¹å˜çŠ¶æ€ï¼Œéšè—ç¡®è®¤å¯¹è¯æ¡†
                                 menu::quit::show_exit_confirmation = false;
                             }
                         }

@@ -5,7 +5,6 @@
 
 
 #define IM_MAX(A, B)            (((A) >= (B)) ? (A) : (B))
-
 static void HelpMarker(const char* desc)
 {
     ImGui::TextDisabled("(?)");
@@ -62,7 +61,7 @@ void DebugNodeFont_cn(ImFont* font)
     ImGuiContext& g = *GImGui;
     ImGuiMetricsConfig* cfg = &g.DebugMetricsConfig;
     ImFontAtlas* atlas = font->ContainerAtlas;
-    bool opened = ImGui::TreeNode(font, u8"×ÖÌå: \"%s\": %d À´Ô´(s)", font->GetDebugName(), font->Sources.Size);
+    bool opened = ImGui::TreeNode(font, u8"å­—ä½“: \"%s\": %d æ¥æº(s)", font->GetDebugName(), font->Sources.Size);
 
     // Display preview text
     if (!opened)
@@ -72,7 +71,7 @@ void DebugNodeFont_cn(ImFont* font)
     {
         ImGui::PushFont(font, 0.0f);
         ImGui::Text("The quick brown fox jumps over the lazy dog");
-        ImGui::Text(u8"Ãô½İµÄ×ØÉ«ºüÀêÌø¹ıÄÇÖ»ÀÁ¹·");
+        ImGui::Text(u8"æ•æ·çš„æ£•è‰²ç‹ç‹¸è·³è¿‡é‚£åªæ‡’ç‹—");
 
         ImGui::PopFont();
     }
@@ -82,24 +81,24 @@ void DebugNodeFont_cn(ImFont* font)
         ImGui::Unindent();
         return;
     }
-    if (ImGui::SmallButton(u8"ÉèÎªÄ¬ÈÏ"))
+    if (ImGui::SmallButton(u8"è®¾ä¸ºé»˜è®¤"))
         ImGui::GetIO().FontDefault = font;
     ImGui::SameLine();
     ImGui::BeginDisabled(atlas->Fonts.Size <= 1 || atlas->Locked);
-    if (ImGui::SmallButton(u8"É¾³ı"))
+    if (ImGui::SmallButton(u8"åˆ é™¤"))
         atlas->RemoveFont(font);
     ImGui::EndDisabled();
     ImGui::SameLine();
-    if (ImGui::SmallButton(u8"Çå½àºæ±º"))
+    if (ImGui::SmallButton(u8"æ¸…æ´çƒ˜ç„™"))
         ImFontAtlasFontDiscardBakes(atlas, font, 0);
     ImGui::SameLine();
-    if (ImGui::SmallButton(u8"Çå³ıÎ´Ê¹ÓÃµÄ"))
+    if (ImGui::SmallButton(u8"æ¸…é™¤æœªä½¿ç”¨çš„"))
         ImFontAtlasFontDiscardBakes(atlas, font, 2);
 
     // Display details
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     ImGui::SetNextItemWidth(ImGui::GetFontSize() * 8);
-    ImGui::DragFloat(u8"×ÖÌåËõ·Å", &font->Scale, 0.005f, 0.3f, 2.0f, "%.1f");
+    ImGui::DragFloat(u8"å­—ä½“ç¼©æ”¾", &font->Scale, 0.005f, 0.3f, 2.0f, "%.1f");
     /*SameLine(); MetricsHelpMarker(
         "Note that the default embedded font is NOT meant to be scaled.\n\n"
         "Font are currently rendered into bitmaps at a given size at the time of building the atlas. "
@@ -110,23 +109,23 @@ void DebugNodeFont_cn(ImFont* font)
 
     char c_str[5];
     ImTextCharToUtf8(c_str, font->FallbackChar);
-    ImGui::Text(u8"»ØÍË×Ö·û: '%s' (U+%04X)", c_str, font->FallbackChar);
+    ImGui::Text(u8"å›é€€å­—ç¬¦: '%s' (U+%04X)", c_str, font->FallbackChar);
     ImTextCharToUtf8(c_str, font->EllipsisChar);
-    ImGui::Text(u8"Ê¡ÂÔºÅ×Ö·û: '%s' (U+%04X)", c_str, font->EllipsisChar);
+    ImGui::Text(u8"çœç•¥å·å­—ç¬¦: '%s' (U+%04X)", c_str, font->EllipsisChar);
 
     for (int src_n = 0; src_n < font->Sources.Size; src_n++)
     {
         ImFontConfig* src = font->Sources[src_n];
-        if (ImGui::TreeNode(src, u8"ÊäÈë %d: \'%s\' [%d], ¹ı²ÉÑù: %d,%d, ÏñËØ²¶×½H: %d, Æ«ÒÆ: (%.1f,%.1f)",
+        if (ImGui::TreeNode(src, u8"è¾“å…¥ %d: \'%s\' [%d], è¿‡é‡‡æ ·: %d,%d, åƒç´ æ•æ‰H: %d, åç§»: (%.1f,%.1f)",
             src_n, src->Name, src->FontNo, src->OversampleH, src->OversampleV, src->PixelSnapH, src->GlyphOffset.x, src->GlyphOffset.y))
         {
             const ImFontLoader* loader = src->FontLoader ? src->FontLoader : atlas->FontLoader;
-            ImGui::Text(u8"×°ÔØ»ú: '%s'", loader->Name ? loader->Name : "N/A");
+            ImGui::Text(u8"è£…è½½æœº: '%s'", loader->Name ? loader->Name : "N/A");
 #ifdef IMGUI_ENABLE_FREETYPE
             if (loader->Name != NULL && strcmp(loader->Name, "FreeType") == 0)
             {
                 unsigned int loader_flags = src->FontLoaderFlags;
-                ImGui::Text(u8"FreeType ¼ÓÔØÆ÷±êÖ¾: 0x%08X", loader_flags);
+                ImGui::Text(u8"FreeType åŠ è½½å™¨æ ‡å¿—: 0x%08X", loader_flags);
                 if (ImGuiFreeType::DebugEditFontLoaderFlags(&loader_flags))
                 {
                     ImFontAtlasFontDestroyOutput_cn(atlas, font);
@@ -138,10 +137,10 @@ void DebugNodeFont_cn(ImFont* font)
             ImGui::TreePop();
         }
     }
-    if (font->Sources.Size > 1 && ImGui::TreeNode(u8"ÊäÈë×ÖĞÎÖØµş¼ì²â¹¤¾ß"))
+    if (font->Sources.Size > 1 && ImGui::TreeNode(u8"è¾“å…¥å­—å½¢é‡å æ£€æµ‹å·¥å…·"))
     {
-        ImGui::TextWrapped(u8"- Ê¹ÓÃ°üº¬¸Ã×Ö·ûµÄµÚÒ»¸öÊäÈë.\n"
-            u8"- Ê¹ÓÃ ImFontConfig::GlyphExcludeRanges[] Ö¸¶¨ÒªÔÚ¸ø¶¨ÊäÈëÖĞºöÂÔµÄ×ÖĞÎ·¶Î§.\n- ¾¡Á¿Ê¹ÓÃÉÙÁ¿·¶Î§£¬ÒòÎªÃ¿´Î¼ÓÔØĞÂ×ÖĞÎÊ±¶¼»áÉ¨ÃèÁĞ±í,\n  - e.g. GlyphExcludeRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };\n- Õâ¸ö¹¤¾ß²»»º´æ½á¹û£¬¶øÇÒºÜÂı£¬²»ÒªÒ»Ö±´ò¿ªËü!");
+        ImGui::TextWrapped(u8"- ä½¿ç”¨åŒ…å«è¯¥å­—ç¬¦çš„ç¬¬ä¸€ä¸ªè¾“å…¥.\n"
+            u8"- ä½¿ç”¨ ImFontConfig::GlyphExcludeRanges[] æŒ‡å®šè¦åœ¨ç»™å®šè¾“å…¥ä¸­å¿½ç•¥çš„å­—å½¢èŒƒå›´.\n- å°½é‡ä½¿ç”¨å°‘é‡èŒƒå›´ï¼Œå› ä¸ºæ¯æ¬¡åŠ è½½æ–°å­—å½¢æ—¶éƒ½ä¼šæ‰«æåˆ—è¡¨,\n  - e.g. GlyphExcludeRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };\n- è¿™ä¸ªå·¥å…·ä¸ç¼“å­˜ç»“æœï¼Œè€Œä¸”å¾ˆæ…¢ï¼Œä¸è¦ä¸€ç›´æ‰“å¼€å®ƒ!");
         if (ImGui::BeginTable("table", 2))
         {
             for (unsigned int c = 0; c < 0x10000; c++)
@@ -150,13 +149,13 @@ void DebugNodeFont_cn(ImFont* font)
                     unsigned int c_end = c + 1;
                     while (c_end < 0x10000 && CalcFontGlyphSrcOverlapMask(atlas, font, c_end) == overlap_mask)
                         c_end++;
-                    if (ImGui::TableNextColumn() && ImGui::TreeNode((void*)(intptr_t)c, u8"U+%04X-U+%04X£º%d ¸öÂëµãÔÚ %d ¸öÊäÈëÖĞ", c, c_end - 1, c_end - c, ImCountSetBits(overlap_mask)))
+                    if (ImGui::TableNextColumn() && ImGui::TreeNode((void*)(intptr_t)c, u8"U+%04X-U+%04Xï¼š%d ä¸ªç ç‚¹åœ¨ %d ä¸ªè¾“å…¥ä¸­", c, c_end - 1, c_end - c, ImCountSetBits(overlap_mask)))
                     {
                         char utf8_buf[5];
                         for (unsigned int n = c; n < c_end; n++)
                         {
                             ImTextCharToUtf8(utf8_buf, n);
-                            ImGui::BulletText(u8"´úÂëµã U+%04X (%s)", n, utf8_buf);
+                            ImGui::BulletText(u8"ä»£ç ç‚¹ U+%04X (%s)", n, utf8_buf);
                         }
                         ImGui::TreePop();
                     }
@@ -181,21 +180,21 @@ void DebugNodeFont_cn(ImFont* font)
         if (baked->ContainerFont != font)
             continue;
         ImGui::PushID(baked_n);
-        if (ImGui::TreeNode(u8"×ÖĞÎ", u8"ºæ±ºÓÚ { %.2fpx, d.%.2f }: %d ×ÖĞÎ%s", baked->Size, baked->RasterizerDensity, baked->Glyphs.Size, (baked->LastUsedFrame < atlas->Builder->FrameCount - 1) ? " *Unused*" : ""))
+        if (ImGui::TreeNode(u8"å­—å½¢", u8"çƒ˜ç„™äº { %.2fpx, d.%.2f }: %d å­—å½¢%s", baked->Size, baked->RasterizerDensity, baked->Glyphs.Size, (baked->LastUsedFrame < atlas->Builder->FrameCount - 1) ? " *Unused*" : ""))
         {
-            if (ImGui::SmallButton(u8"¼ÓÔØÈ«²¿"))
+            if (ImGui::SmallButton(u8"åŠ è½½å…¨éƒ¨"))
                 for (unsigned int base = 0; base <= IM_UNICODE_CODEPOINT_MAX; base++)
                     baked->FindGlyph((ImWchar)base);
 
             const int surface_sqrt = (int)ImSqrt((float)baked->MetricsTotalSurface);
-            ImGui::Text(u8"ÉÏÉı£º%f£¬ÏÂ½µ£º%f£¬ÉÏÉı-ÏÂ½µ£º%f", baked->Ascent, baked->Descent, baked->Ascent - baked->Descent);
-            ImGui::Text(u8"ÎÆÀíÇøÓò£ºÔ¼ %d px ~%dx%d px", baked->MetricsTotalSurface, surface_sqrt, surface_sqrt);
+            ImGui::Text(u8"ä¸Šå‡ï¼š%fï¼Œä¸‹é™ï¼š%fï¼Œä¸Šå‡-ä¸‹é™ï¼š%f", baked->Ascent, baked->Descent, baked->Ascent - baked->Descent);
+            ImGui::Text(u8"çº¹ç†åŒºåŸŸï¼šçº¦ %d px ~%dx%d px", baked->MetricsTotalSurface, surface_sqrt, surface_sqrt);
             for (int src_n = 0; src_n < font->Sources.Size; src_n++)
             {
                 ImFontConfig* src = font->Sources[src_n];
                 int oversample_h, oversample_v;
                 ImFontAtlasBuildGetOversampleFactors(src, baked, &oversample_h, &oversample_v);
-                ImGui::BulletText(u8"ÊäÈë %d£º\'%s\'£¬¹ı²ÉÑù£º(%d=>%d,%d=>%d)£¬ÏñËØ¶ÔÆëH£º%d£¬Æ«ÒÆ£º (%.1f,%.1f)",
+                ImGui::BulletText(u8"è¾“å…¥ %dï¼š\'%s\'ï¼Œè¿‡é‡‡æ ·ï¼š(%d=>%d,%d=>%d)ï¼Œåƒç´ å¯¹é½Hï¼š%dï¼Œåç§»ï¼š (%.1f,%.1f)",
                     src_n, src->Name, src->OversampleH, oversample_h, src->OversampleV, oversample_v, src->PixelSnapH, src->GlyphOffset.x, src->GlyphOffset.y);
             }
 
@@ -207,7 +206,7 @@ void DebugNodeFont_cn(ImFont* font)
     ImGui::TreePop();
     ImGui::Unindent();
 }
-void ShowFontAtlas_cn(ImFontAtlas* atlas)
+void ShowFontAtlas(ImFontAtlas* atlas)
 {
     ImGuiContext& g = *GImGui;
     ImGuiIO& io = g.IO;
@@ -216,38 +215,38 @@ void ShowFontAtlas_cn(ImFontAtlas* atlas)
     ImGui::BeginDisabled();
     ImGui::CheckboxFlags("io.BackendFlags: RendererHasTextures", &io.BackendFlags, ImGuiBackendFlags_RendererHasTextures);
     ImGui::EndDisabled();
-    ImGui::ShowFontSelector(u8"×ÖÌå");
+    ImGui::ShowFontSelector(u8"å­—ä½“");
     //BeginDisabled((io.BackendFlags & ImGuiBackendFlags_RendererHasTextures) == 0);
-    if (ImGui::DragFloat(u8"»ù±¾×ÖÌå´óĞ¡", &style.FontSizeBase, 0.20f, 5.0f, 100.0f, "%.0f"))
+    if (ImGui::DragFloat(u8"åŸºæœ¬å­—ä½“å¤§å°", &style.FontSizeBase, 0.20f, 5.0f, 100.0f, "%.0f"))
         style._NextFrameFontSizeBase = style.FontSizeBase; // FIXME: Temporary hack until we finish remaining work.
     ImGui::SameLine(0.0f, 0.0f); ImGui::Text(" (out %.2f)", ImGui::GetFontSize());
-    ImGui::SameLine(); HelpMarker(u8"- Õâ½öÊÇ×ÖÌåËõ·Å¡£Ò»°ãËõ·Å¹¦ÄÜ½«ÉÔºóÍÆ³ö¡£");
-    ImGui::DragFloat(u8"×ÖÌåËõ·ÅÖ÷", &style.FontScaleMain, 0.02f, 0.5f, 4.0f);
+    ImGui::SameLine(); HelpMarker(u8"- è¿™ä»…æ˜¯å­—ä½“ç¼©æ”¾ã€‚ä¸€èˆ¬ç¼©æ”¾åŠŸèƒ½å°†ç¨åæ¨å‡ºã€‚");
+    ImGui::DragFloat(u8"å­—ä½“ç¼©æ”¾ä¸»", &style.FontScaleMain, 0.02f, 0.5f, 4.0f);
     //BeginDisabled(io.ConfigDpiScaleFonts);
-    ImGui::DragFloat(u8"×ÖÌåËõ·ÅDPI", &style.FontScaleDpi, 0.02f, 0.5f, 4.0f);
+    ImGui::DragFloat(u8"å­—ä½“ç¼©æ”¾DPI", &style.FontScaleDpi, 0.02f, 0.5f, 4.0f);
     //SetItemTooltip("When io.ConfigDpiScaleFonts is set, this value is automatically overwritten.");
     //EndDisabled();
     if ((io.BackendFlags & ImGuiBackendFlags_RendererHasTextures) == 0)
     {
-        ImGui::BulletText(u8"¾¯¸æ£º×ÖÌåËõ·Å²»»áÆ½»¬£¬ÒòÎªÎ´ÉèÖÃ ImGuiBackendFlags_RendererHasTextures£¡");
-        ImGui::BulletText(u8"ÓĞ¹ØËµÃ÷£¬Çë²Î¼û£º");
+        ImGui::BulletText(u8"è­¦å‘Šï¼šå­—ä½“ç¼©æ”¾ä¸ä¼šå¹³æ»‘ï¼Œå› ä¸ºæœªè®¾ç½® ImGuiBackendFlags_RendererHasTexturesï¼");
+        ImGui::BulletText(u8"æœ‰å…³è¯´æ˜ï¼Œè¯·å‚è§ï¼š");
         ImGui::SameLine();
         ImGui::TextLinkOpenURL("docs/BACKENDS.md", "https://github.com/ocornut/imgui/blob/master/docs/BACKENDS.md");
     }
-    ImGui::BulletText(u8"¼ÓÔØÒ»¸öºÃ×ÖÌåÒÔ»ñµÃ¸üºÃµÄĞ§¹û£¡");
-    ImGui::BulletText(u8"ÇëÌá½»·´À¡£º");
+    ImGui::BulletText(u8"åŠ è½½ä¸€ä¸ªå¥½å­—ä½“ä»¥è·å¾—æ›´å¥½çš„æ•ˆæœï¼");
+    ImGui::BulletText(u8"è¯·æäº¤åé¦ˆï¼š");
     ImGui::SameLine(); ImGui::TextLinkOpenURL("#8465", "https://github.com/ocornut/imgui/issues/8465");
-    ImGui::BulletText(u8"²é¿´³£¼ûÎÊÌâÒÔ»ñÈ¡¸ü¶àÏêÇé£º");
+    ImGui::BulletText(u8"æŸ¥çœ‹å¸¸è§é—®é¢˜ä»¥è·å–æ›´å¤šè¯¦æƒ…ï¼š");
     ImGui::SameLine(); ImGui::TextLinkOpenURL("dearimgui.com/faq", "https://www.dearimgui.com/faq/");
     //EndDisabled();
 
-    ImGui::SeparatorText(u8"×ÖÌåÁĞ±í");
+    ImGui::SeparatorText(u8"å­—ä½“åˆ—è¡¨");
 
     ImGuiMetricsConfig* cfg = &g.DebugMetricsConfig;
-    ImGui::Checkbox(u8"ÏÔÊ¾×ÖÌåÔ¤ÀÀ", &cfg->ShowFontPreview);
+    ImGui::Checkbox(u8"æ˜¾ç¤ºå­—ä½“é¢„è§ˆ", &cfg->ShowFontPreview);
 
     // Font loaders
-    if (ImGui::TreeNode(u8"¼ÓÔØÆ÷", u8"¼ÓÔØÆ÷: \'%s\'", atlas->FontLoaderName ? atlas->FontLoaderName : "NULL"))
+    if (ImGui::TreeNode(u8"åŠ è½½å™¨", u8"åŠ è½½å™¨: \'%s\'", atlas->FontLoaderName ? atlas->FontLoaderName : "NULL"))
     {
         const ImFontLoader* loader_current = atlas->FontLoader;
         ImGui::BeginDisabled(!atlas->RendererHasTextures);
@@ -282,7 +281,7 @@ void ShowFontAtlas_cn(ImFontAtlas* atlas)
 #else
         ImGui::BeginDisabled();
         ImGui::RadioButton("FreeType", false);
-        ImGui::SetItemTooltip(u8"ĞèÒªÔÚ imgui_freetype.cpp ÖĞ #define IMGUI_ENABLE_FREETYPE¡£");
+        ImGui::SetItemTooltip(u8"éœ€è¦åœ¨ imgui_freetype.cpp ä¸­ #define IMGUI_ENABLE_FREETYPEã€‚");
         ImGui::EndDisabled();
 #endif
         ImGui::EndDisabled();
@@ -297,16 +296,16 @@ void ShowFontAtlas_cn(ImFontAtlas* atlas)
         ImGui::PopID();
     }
 
-    ImGui::SeparatorText(u8"×ÖÌåÍ¼¼¯");
-    if (ImGui::Button(u8"½ô´Õ"))
+    ImGui::SeparatorText(u8"å­—ä½“å›¾é›†");
+    if (ImGui::Button(u8"ç´§å‡‘"))
         atlas->CompactCache();
     ImGui::SameLine();
-    if (ImGui::Button(u8"³É³¤"))
+    if (ImGui::Button(u8"æˆé•¿"))
         ImFontAtlasTextureGrow(atlas);
     ImGui::SameLine();
-    if (ImGui::Button(u8"Çå³ıËùÓĞ"))
+    if (ImGui::Button(u8"æ¸…é™¤æ‰€æœ‰"))
         ImFontAtlasBuildClear(atlas);
-    ImGui::SetItemTooltip(u8"Ïú»Ù»º´æºÍ×Ô¶¨Òå¾ØĞÎ¡£");
+    ImGui::SetItemTooltip(u8"é”€æ¯ç¼“å­˜å’Œè‡ªå®šä¹‰çŸ©å½¢ã€‚");
 
     for (int tex_n = 0; tex_n < atlas->TexList.Size; tex_n++)
     {
@@ -317,11 +316,11 @@ void ShowFontAtlas_cn(ImFontAtlas* atlas)
     }
     const int packed_surface_sqrt = (int)sqrtf((float)atlas->Builder->RectsPackedSurface);
     const int discarded_surface_sqrt = (int)sqrtf((float)atlas->Builder->RectsDiscardedSurface);
-    ImGui::Text(u8"´ò°ü¾ØĞÎ£º%d£¬Ãæ»ı£º¼s %d ÏñËØ ~%dx%d ÏñËØ", atlas->Builder->RectsPackedCount, atlas->Builder->RectsPackedSurface, packed_surface_sqrt, packed_surface_sqrt);
-    ImGui::Text(u8"°üÀ¨±»¶ªÆúµÄ¾ØĞÎ: %d£¬Ãæ»ı: Ô¼ %d ÏñËØ ~%dx%d ÏñËØ", atlas->Builder->RectsDiscardedCount, atlas->Builder->RectsDiscardedSurface, discarded_surface_sqrt, discarded_surface_sqrt);
+    ImGui::Text(u8"æ‰“åŒ…çŸ©å½¢ï¼š%dï¼Œé¢ç§¯ï¼šç´„ %d åƒç´  ~%dx%d åƒç´ ", atlas->Builder->RectsPackedCount, atlas->Builder->RectsPackedSurface, packed_surface_sqrt, packed_surface_sqrt);
+    ImGui::Text(u8"åŒ…æ‹¬è¢«ä¸¢å¼ƒçš„çŸ©å½¢: %dï¼Œé¢ç§¯: çº¦ %d åƒç´  ~%dx%d åƒç´ ", atlas->Builder->RectsDiscardedCount, atlas->Builder->RectsDiscardedSurface, discarded_surface_sqrt, discarded_surface_sqrt);
 
     ImFontAtlasRectId highlight_r_id = ImFontAtlasRectId_Invalid;
-    if (ImGui::TreeNode(u8"¾ØĞÎË÷Òı", u8"¾ØĞÎË÷Òı (%d)", atlas->Builder->RectsPackedCount)) // <-- Use count of used rectangles
+    if (ImGui::TreeNode(u8"çŸ©å½¢ç´¢å¼•", u8"çŸ©å½¢ç´¢å¼• (%d)", atlas->Builder->RectsPackedCount)) // <-- Use count of used rectangles
     {
         ImGui::PushStyleVar(ImGuiStyleVar_ImageBorderSize, 1.0f);
         if (ImGui::BeginTable("##table", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollY, ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 12)))
@@ -333,7 +332,7 @@ void ShowFontAtlas_cn(ImFontAtlas* atlas)
                     ImFontAtlasRect r = {};
                     atlas->GetCustomRect(id, &r);
                     const char* buf;
-                    ImFormatStringToTempBuffer(&buf, NULL, u8"ID:X£¬Ê¹ÓÃÂÊ:%d£¬{ ¿í:=, ¸ß:= } { x:M, y:M }", id, entry.IsUsed, r.w, r.h, r.x, r.y);
+                    ImFormatStringToTempBuffer(&buf, NULL, u8"ID:Xï¼Œä½¿ç”¨ç‡:%dï¼Œ{ å®½:=, é«˜:= } { x:M, y:M }", id, entry.IsUsed, r.w, r.h, r.x, r.y);
                     ImGui::TableNextColumn();
                     ImGui::Selectable(buf);
                     if (ImGui::IsItemHovered())
@@ -360,133 +359,24 @@ void ShowFontAtlas_cn(ImFontAtlas* atlas)
     }
 }
 namespace ImGui {
-    const char* TranslateColorName(ImGuiCol col) {
-        // Ê¹ÓÃ u8 Ç°×ºÈ·±£ËùÓĞÖĞÎÄ×Ö·û´®¶¼ÊÇ UTF-8 ±àÂë
-        switch (col) {
-            // --- ÎÄ±¾ ---
-        case ImGuiCol_Text: return u8"ÎÄ±¾";
-        case ImGuiCol_TextDisabled: return u8"½ûÓÃÊ±ÎÄ±¾";
-        case ImGuiCol_TextSelectedBg: return u8"Ñ¡ÖĞÎÄ±¾±³¾°";
-        case ImGuiCol_TextLink: return u8"Á´½ÓÎÄ±¾";
-
-            // --- ´°¿Ú±³¾° ---
-        case ImGuiCol_WindowBg: return u8"´°¿Ú±³¾°";
-        case ImGuiCol_ChildBg: return u8"×Ó´°¿Ú±³¾°";
-        case ImGuiCol_PopupBg: return u8"µ¯³ö²ã±³¾°";
-        //case ImGuiCol_DockingEmptyBg: return u8"¿ÕÍ£¿¿Çø±³¾°";
-
-            // --- ±ß¿ò ---
-        case ImGuiCol_Border: return u8"±ß¿ò";
-        case ImGuiCol_BorderShadow: return u8"±ß¿òÒõÓ° (ÒÑÆúÓÃ)";
-
-            // --- ¿Ø¼ş¿ò¼Ü ---
-        case ImGuiCol_FrameBg: return u8"¿Ø¼ş±³¾°";
-        case ImGuiCol_FrameBgHovered: return u8"¿Ø¼ş±³¾° (ĞüÍ£)";
-        case ImGuiCol_FrameBgActive: return u8"¿Ø¼ş±³¾° (¼¤»î)";
-
-            // --- ±êÌâÀ¸ ---
-        case ImGuiCol_TitleBg: return u8"±êÌâÀ¸±³¾°";
-        case ImGuiCol_TitleBgActive: return u8"±êÌâÀ¸±³¾° (¼¤»î)";
-        case ImGuiCol_TitleBgCollapsed: return u8"±êÌâÀ¸±³¾° (ÕÛµş)";
-        case ImGuiCol_MenuBarBg: return u8"²Ëµ¥À¸±³¾°";
-
-            // --- ¹ö¶¯Ìõ ---
-        case ImGuiCol_ScrollbarBg: return u8"¹ö¶¯Ìõ±³¾°";
-        case ImGuiCol_ScrollbarGrab: return u8"¹ö¶¯Ìõ»¬¿é";
-        case ImGuiCol_ScrollbarGrabHovered: return u8"¹ö¶¯Ìõ»¬¿é (ĞüÍ£)";
-        case ImGuiCol_ScrollbarGrabActive: return u8"¹ö¶¯Ìõ»¬¿é (¼¤»î)";
-
-            // --- ¿Ø¼şÌØ¶¨Ïî ---
-        case ImGuiCol_CheckMark: return u8"¹´Ñ¡±ê¼Ç";
-        case ImGuiCol_SliderGrab: return u8"»¬¿é";
-        case ImGuiCol_SliderGrabActive: return u8"»¬¿é (¼¤»î)";
-        case ImGuiCol_InputTextCursor: return u8"ÊäÈë¿ò¹â±ê";
-
-            // --- °´Å¥ ---
-        case ImGuiCol_Button: return u8"°´Å¥";
-        case ImGuiCol_ButtonHovered: return u8"°´Å¥ (ĞüÍ£)";
-        case ImGuiCol_ButtonActive: return u8"°´Å¥ (¼¤»î)";
-
-            // --- ±êÌâÍ· ---
-        case ImGuiCol_Header: return u8"±êÌâÍ·";
-        case ImGuiCol_HeaderHovered: return u8"±êÌâÍ· (ĞüÍ£)";
-        case ImGuiCol_HeaderActive: return u8"±êÌâÍ· (¼¤»î)";
-
-            // --- ·Ö¸ô·û ---
-        case ImGuiCol_Separator: return u8"·Ö¸ô·û";
-        case ImGuiCol_SeparatorHovered: return u8"·Ö¸ô·û (ĞüÍ£)";
-        case ImGuiCol_SeparatorActive: return u8"·Ö¸ô·û (¼¤»î)";
-
-            // --- ³ß´çµ÷Õû ---
-        case ImGuiCol_ResizeGrip: return u8"³ß´çµ÷ÕûÊÖ±ú";
-        case ImGuiCol_ResizeGripHovered: return u8"³ß´çµ÷ÕûÊÖ±ú (ĞüÍ£)";
-        case ImGuiCol_ResizeGripActive: return u8"³ß´çµ÷ÕûÊÖ±ú (¼¤»î)";
-
-            // --- ±êÇ©Ò³ ---
-        case ImGuiCol_Tab: return u8"±êÇ©Ò³";
-        case ImGuiCol_TabHovered: return u8"±êÇ©Ò³ (ĞüÍ£)";
-        case ImGuiCol_TabSelected: return u8"Ñ¡ÖĞ±êÇ©Ò³";
-        case ImGuiCol_TabSelectedOverline: return u8"Ñ¡ÖĞ±êÇ©Ò³ÉÏ»®Ïß";
-        case ImGuiCol_TabDimmed: return u8"±êÇ©Ò³ (Ê§½¹)";
-        case ImGuiCol_TabDimmedSelected: return u8"Ñ¡ÖĞ±êÇ©Ò³ (Ê§½¹)";
-        case ImGuiCol_TabDimmedSelectedOverline: return u8"Ñ¡ÖĞ±êÇ©Ò³ÉÏ»®Ïß (Ê§½¹)";
-
-            // --- ±í¸ñ ---
-        case ImGuiCol_TableHeaderBg: return u8"±í¸ñ±êÌâ±³¾°";
-        case ImGuiCol_TableBorderStrong: return u8"±í¸ñÇ¿±ß¿ò";
-        case ImGuiCol_TableBorderLight: return u8"±í¸ñÈõ±ß¿ò";
-        case ImGuiCol_TableRowBg: return u8"±í¸ñĞĞ±³¾°";
-        case ImGuiCol_TableRowBgAlt: return u8"±í¸ñĞĞ±³¾° (½»Ìæ)";
-
-            // --- »æÍ¼ ---
-        case ImGuiCol_PlotLines: return u8"»æÍ¼ÏßÌõ";
-        case ImGuiCol_PlotLinesHovered: return u8"»æÍ¼ÏßÌõ (ĞüÍ£)";
-        case ImGuiCol_PlotHistogram: return u8"»æÍ¼Ö±·½Í¼";
-        case ImGuiCol_PlotHistogramHovered: return u8"»æÍ¼Ö±·½Í¼ (ĞüÍ£)";
-
-            // --- µ¼º½Óë±ê¼Ç ---
-        case ImGuiCol_NavCursor: return u8"µ¼º½¹â±ê";
-        case ImGuiCol_TreeLines: return u8"Ê÷Á¬½ÓÏß";
-        case ImGuiCol_DragDropTarget: return u8"ÍÏ·ÅÄ¿±ê¸ßÁÁ";
-        case ImGuiCol_UnsavedMarker: return u8"Î´±£´æ±ê¼Ç";
-        case ImGuiCol_DockingPreview: return u8"Í£¿¿Ô¤ÀÀ";
-        case ImGuiCol_NavWindowingHighlight: return u8"µ¼º½´°¿Ú¸ßÁÁ";
-        case ImGuiCol_NavWindowingDimBg: return u8"µ¼º½´°¿ÚÕÚÕÖ";
-        case ImGuiCol_ModalWindowDimBg: return u8"Ä£Ì¬´°¿ÚÕÚÕÖ";
-
-        default: return ImGui::GetStyleColorName(col); // Èç¹ûÓĞÎ´¸²¸Çµ½µÄĞÂÃ¶¾Ù£¬Ôò·µ»ØÆäÓ¢ÎÄÃû
-        }
-    }
     bool CheckboxFloat(const char* label, float* v)
     {
-        // 1. ´´½¨Ò»¸öÁÙÊ±µÄ bool ±äÁ¿£¬ËüµÄ×´Ì¬È¡¾öÓÚ float* v µÄÖµ
-        //    ÎÒÃÇÓÃÒ»¸öºÜĞ¡µÄãĞÖµÀ´ÅĞ¶Ï£¬±ÜÃâ¸¡µãÊı¾«¶ÈÎÊÌâ
+        // 1. åˆ›å»ºä¸€ä¸ªä¸´æ—¶çš„ bool å˜é‡ï¼Œå®ƒçš„çŠ¶æ€å–å†³äº float* v çš„å€¼
+        //    æˆ‘ä»¬ç”¨ä¸€ä¸ªå¾ˆå°çš„é˜ˆå€¼æ¥åˆ¤æ–­ï¼Œé¿å…æµ®ç‚¹æ•°ç²¾åº¦é—®é¢˜
         bool b = (*v > 0.001f);
 
-        // 2. µ÷ÓÃÔ­ÉúµÄ ImGui::Checkbox£¬ÈÃËü²Ù×÷ÎÒÃÇµÄÁÙÊ± bool ±äÁ¿
-        //    Èç¹ûÓÃ»§µã»÷ÁË Checkbox, a »áÊÇ true
+        // 2. è°ƒç”¨åŸç”Ÿçš„ ImGui::Checkboxï¼Œè®©å®ƒæ“ä½œæˆ‘ä»¬çš„ä¸´æ—¶ bool å˜é‡
+        //    å¦‚æœç”¨æˆ·ç‚¹å‡»äº† Checkbox, a ä¼šæ˜¯ true
         bool a = ImGui::Checkbox(label, &b);
 
-        // 3. Èç¹û Checkbox ±»µã»÷ÁË (a == true)
+        // 3. å¦‚æœ Checkbox è¢«ç‚¹å‡»äº† (a == true)
         if (a) {
-            // ¸ù¾İ Checkbox Ö®ºóµÄ×´Ì¬ b£¬À´¸üĞÂÔ­Ê¼µÄ float* v
+            // æ ¹æ® Checkbox ä¹‹åçš„çŠ¶æ€ bï¼Œæ¥æ›´æ–°åŸå§‹çš„ float* v
             *v = b ? 1.0f : 0.0f;
         }
 
-        // 4. ·µ»Ø Checkbox µÄ×´Ì¬£¬ÕâÑùµ÷ÓÃÕß¾ÍÖªµÀÖµÊÇ·ñ·¢ÉúÁË¸Ä±ä
+        // 4. è¿”å› Checkbox çš„çŠ¶æ€ï¼Œè¿™æ ·è°ƒç”¨è€…å°±çŸ¥é“å€¼æ˜¯å¦å‘ç”Ÿäº†æ”¹å˜
         return a;
-    }
-    void ShowStyleEditorHelpMarker(const char* desc)
-    {
-        ImGui::TextDisabled("(?)");
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::BeginTooltip();
-            ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-            ImGui::TextUnformatted(desc);
-            ImGui::PopTextWrapPos();
-            ImGui::EndTooltip();
-        }
     }
     void ShowTranslatedStyleEditor(ImGuiStyle* ref)
     {
@@ -499,75 +389,75 @@ namespace ImGui {
         if (ref == NULL)
             ref = &ref_saved_style;
         ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.50f);
-
-        if (ImGui::ShowStyleSelector(u8"Ö÷Ìâ##Selector"))
+    
+        if (ImGui::ShowStyleSelector(u8"ä¸»é¢˜##Selector"))
             ref_saved_style = style;
-        ImGui::ShowFontSelector(u8"×ÖÌå##Selector");
-
-        if (ImGui::SliderFloat(u8"È«¾ÖÍ¸Ã÷¶È", &style.Alpha, 0.20f, 1.0f, "%.2f"))
+        ImGui::ShowFontSelector(u8"å­—ä½“##Selector");
+    
+        if (ImGui::SliderFloat(u8"å…¨å±€é€æ˜åº¦", &style.Alpha, 0.20f, 1.0f, "%.2f"))
             style.Colors[ImGuiCol_FrameBg].w = style.Colors[ImGuiCol_WindowBg].w = style.Alpha;
-        if (Button(u8"±£´æ²Î¿¼"))
+        if (Button(u8"ä¿å­˜å‚è€ƒ"))
             *ref = ref_saved_style = style;
         SameLine();
-        if (Button(u8"»Ö¸´²Î¿¼"))
+        if (Button(u8"æ¢å¤å‚è€ƒ"))
             style = *ref;
         SameLine();
         HelpMarker(
-            u8"±£´æ/»¹Ô­µ½±¾µØ·Ç³Ö¾Ã´æ´¢¡£Ä¬ÈÏÑÕÉ«¶¨Òå²»ÊÜÓ°Ïì¡£"
-            u8"Ê¹ÓÃÏÂÃæµÄ¡°µ¼³ö¡±¹¦ÄÜ½«ËüÃÇ±£´æµ½Ä³¸öÎ»ÖÃ¡£");
+            u8"ä¿å­˜/è¿˜åŸåˆ°æœ¬åœ°éæŒä¹…å­˜å‚¨ã€‚é»˜è®¤é¢œè‰²å®šä¹‰ä¸å—å½±å“ã€‚"
+            u8"ä½¿ç”¨ä¸‹é¢çš„â€œå¯¼å‡ºâ€åŠŸèƒ½å°†å®ƒä»¬ä¿å­˜åˆ°æŸä¸ªä½ç½®ã€‚");
         ImGui::Separator();
-
+    
         if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_None))
         {
-            if (ImGui::BeginTabItem(u8"³ß´ç"))
+            if (ImGui::BeginTabItem(u8"å°ºå¯¸"))
             {
-                ImGui::SeparatorText(u8"Ö÷Òª");
-                ImGui::SliderFloat2(u8"´°¿Ú±ß¾à", (float*)&style.WindowPadding, 0.0f, 20.0f, "%.0f");
-                ImGui::SliderFloat2(u8"¿ò¼Ü±ß¾à", (float*)&style.FramePadding, 0.0f, 20.0f, "%.0f");
-                ImGui::SliderFloat2(u8"¿Ø¼ş¼ä¾à", (float*)&style.ItemSpacing, 0.0f, 20.0f, "%.0f");
-                ImGui::SliderFloat2(u8"¿Ø¼şÄÚ²¿¼ä¾à", (float*)&style.ItemInnerSpacing, 0.0f, 20.0f, "%.0f");
-                ImGui::SliderFloat2(u8"´¥Ãş¶îÍâ±ß¾à", (float*)&style.TouchExtraPadding, 0.0f, 10.0f, "%.0f");
-                ImGui::SliderFloat(u8"Ëõ½ø¾àÀë", &style.IndentSpacing, 0.0f, 30.0f, "%.0f");
-                ImGui::SliderFloat(u8"»¬¿é¿í¶È", &style.GrabMinSize, 1.0f, 20.0f, "%.0f");
-
-                ImGui::SeparatorText(u8"±ß¿ò");
-                CheckboxFloat(u8"´°¿Ú±ß¿ò³ß´ç", &style.WindowBorderSize);
-                CheckboxFloat(u8"×Ó´°¿Ú±ß¿ò³ß´ç", &style.ChildBorderSize);
-                CheckboxFloat(u8"µ¯³ö´°¿Ú±ß¿ò³ß´ç", &style.PopupBorderSize);
-                CheckboxFloat(u8"¿ò¼Ü±ß¿ò³ß´ç", &style.FrameBorderSize);
-
-                ImGui::SeparatorText(u8"Ô²½Ç");
-                ImGui::SliderFloat(u8"´°¿ÚÔ²½Ç", &style.WindowRounding, 0.0f, 12.0f, "%.0f");
-                ImGui::SliderFloat(u8"×Ó´°¿ÚÔ²½Ç", &style.ChildRounding, 0.0f, 12.0f, "%.0f");
-                ImGui::SliderFloat(u8"¿ò¼ÜÔ²½Ç", &style.FrameRounding, 0.0f, 12.0f, "%.0f");
-                ImGui::SliderFloat(u8"µ¯³ö´°¿ÚÔ²½Ç", &style.PopupRounding, 0.0f, 12.0f, "%.0f");
-                ImGui::SliderFloat(u8"»¬¿éÔ²½Ç", &style.GrabRounding, 0.0f, 12.0f, "%.0f");
-
-                ImGui::SeparatorText(u8"¹ö¶¯Ìõ");
-                ImGui::SliderFloat(u8"¹ö¶¯Ìõ³ß´ç", &style.ScrollbarSize, 1.0f, 20.0f, "%.0f");
-                ImGui::SliderFloat(u8"¹ö¶¯ÌõÔ²½Ç", &style.ScrollbarRounding, 0.0f, 12.0f, "%.0f");
-                ImGui::SliderFloat(u8"¹ö¶¯Ìõ±ß¾à", &style.ScrollbarPadding, 0.0f, 10.0f, "%.0f");
-
-                ImGui::SeparatorText(u8"±êÇ©Ò³");
-                CheckboxFloat(u8"±êÇ©±ß¿ò³ß´ç", &style.TabBorderSize);
-                ImGui::SliderFloat(u8"±êÇ©À¸±ß¿ò³ß´ç", &style.TabBarBorderSize, 0.0f, 2.0f, "%.0f");
-                ImGui::SliderFloat(u8"±êÇ©À¸ÉÏ»®Ïß³ß´ç", &style.TabBarOverlineSize, 0.0f, 3.0f, "%.0f");
-                ImGui::SameLine(); HelpMarker(u8"½öµ±ÉèÖÃÁË ImGuiTabBarFlags_DrawSelectedOverline Ê±£¬²Å»áÔÚÑ¡¶¨µÄ±êÇ©ÉÏ»æÖÆÉÏ»®Ïß¡£");
-                ImGui::DragFloat(u8"±êÇ©×îĞ¡¿í¶È(»ù´¡)", &style.TabMinWidthBase, 0.5f, 1.0f, 500.0f, "%.0f");
-                ImGui::DragFloat(u8"±êÇ©×îĞ¡¿í¶È(ÊÕËõ)", &style.TabMinWidthShrink, 0.5f, 1.0f, 500.0f, "%0.f");
-                ImGui::DragFloat(u8"±êÇ©¹Ø±Õ°´Å¥×îĞ¡¿í¶È(Ñ¡ÖĞ)", &style.TabCloseButtonMinWidthSelected, 0.5f, -1.0f, 100.0f, (style.TabCloseButtonMinWidthSelected < 0.0f) ? u8"%.0f (×ÜÊÇ)" : "%.0f");
-                ImGui::DragFloat(u8"±êÇ©¹Ø±Õ°´Å¥×îĞ¡¿í¶È(Î´Ñ¡ÖĞ)", &style.TabCloseButtonMinWidthUnselected, 0.5f, -1.0f, 100.0f, (style.TabCloseButtonMinWidthUnselected < 0.0f) ? u8"%.0f (×ÜÊÇ)" : "%.0f");
-                ImGui::SliderFloat(u8"±êÇ©Ô²½Ç", &style.TabRounding, 0.0f, 12.0f, "%.0f");
-
-                ImGui::SeparatorText(u8"±í¸ñ");
-                ImGui::SliderFloat2(u8"µ¥Ôª¸ñ±ß¾à", (float*)&style.CellPadding, 0.0f, 20.0f, "%.0f");
-                ImGui::SliderAngle(u8"±í¸ñĞ±½Ç±êÌâ½Ç¶È", &style.TableAngledHeadersAngle, -50.0f, +50.0f);
-                ImGui::SliderFloat2(u8"±í¸ñĞ±½Ç±êÌâ¶ÔÆë", (float*)&style.TableAngledHeadersTextAlign, 0.0f, 1.0f, "%.2f");
-
-                ImGui::SeparatorText(u8"Ê÷");
-                bool combo_open = ImGui::BeginCombo(u8"Ê÷Á¬½ÓÏß±êÖ¾", GetTreeLinesFlagsName(style.TreeLinesFlags));
+                ImGui::SeparatorText(u8"ä¸»è¦");
+                ImGui::SliderFloat2(u8"çª—å£è¾¹è·", (float*)&style.WindowPadding, 0.0f, 20.0f, "%.0f");
+                ImGui::SliderFloat2(u8"æ¡†æ¶è¾¹è·", (float*)&style.FramePadding, 0.0f, 20.0f, "%.0f");
+                ImGui::SliderFloat2(u8"æ§ä»¶é—´è·", (float*)&style.ItemSpacing, 0.0f, 20.0f, "%.0f");
+                ImGui::SliderFloat2(u8"æ§ä»¶å†…éƒ¨é—´è·", (float*)&style.ItemInnerSpacing, 0.0f, 20.0f, "%.0f");
+                ImGui::SliderFloat2(u8"è§¦æ‘¸é¢å¤–è¾¹è·", (float*)&style.TouchExtraPadding, 0.0f, 10.0f, "%.0f");
+                ImGui::SliderFloat(u8"ç¼©è¿›è·ç¦»", &style.IndentSpacing, 0.0f, 30.0f, "%.0f");
+                ImGui::SliderFloat(u8"æ»‘å—å®½åº¦", &style.GrabMinSize, 1.0f, 20.0f, "%.0f");
+    
+                ImGui::SeparatorText(u8"è¾¹æ¡†");
+                CheckboxFloat(u8"çª—å£è¾¹æ¡†å°ºå¯¸", &style.WindowBorderSize);
+                CheckboxFloat(u8"å­çª—å£è¾¹æ¡†å°ºå¯¸", &style.ChildBorderSize);
+                CheckboxFloat(u8"å¼¹å‡ºçª—å£è¾¹æ¡†å°ºå¯¸", &style.PopupBorderSize);
+                CheckboxFloat(u8"æ¡†æ¶è¾¹æ¡†å°ºå¯¸", &style.FrameBorderSize);
+    
+                ImGui::SeparatorText(u8"åœ†è§’");
+                ImGui::SliderFloat(u8"çª—å£åœ†è§’", &style.WindowRounding, 0.0f, 12.0f, "%.0f");
+                ImGui::SliderFloat(u8"å­çª—å£åœ†è§’", &style.ChildRounding, 0.0f, 12.0f, "%.0f");
+                ImGui::SliderFloat(u8"æ¡†æ¶åœ†è§’", &style.FrameRounding, 0.0f, 12.0f, "%.0f");
+                ImGui::SliderFloat(u8"å¼¹å‡ºçª—å£åœ†è§’", &style.PopupRounding, 0.0f, 12.0f, "%.0f");
+                ImGui::SliderFloat(u8"æ»‘å—åœ†è§’", &style.GrabRounding, 0.0f, 12.0f, "%.0f");
+    
+                ImGui::SeparatorText(u8"æ»šåŠ¨æ¡");
+                ImGui::SliderFloat(u8"æ»šåŠ¨æ¡å°ºå¯¸", &style.ScrollbarSize, 1.0f, 20.0f, "%.0f");
+                ImGui::SliderFloat(u8"æ»šåŠ¨æ¡åœ†è§’", &style.ScrollbarRounding, 0.0f, 12.0f, "%.0f");
+                ImGui::SliderFloat(u8"æ»šåŠ¨æ¡è¾¹è·", &style.ScrollbarPadding, 0.0f, 10.0f, "%.0f");
+    
+                ImGui::SeparatorText(u8"æ ‡ç­¾é¡µ");
+                CheckboxFloat(u8"æ ‡ç­¾è¾¹æ¡†å°ºå¯¸", &style.TabBorderSize);
+                ImGui::SliderFloat(u8"æ ‡ç­¾æ è¾¹æ¡†å°ºå¯¸", &style.TabBarBorderSize, 0.0f, 2.0f, "%.0f");
+                ImGui::SliderFloat(u8"æ ‡ç­¾æ ä¸Šåˆ’çº¿å°ºå¯¸", &style.TabBarOverlineSize, 0.0f, 3.0f, "%.0f");
+                ImGui::SameLine(); HelpMarker(u8"ä»…å½“è®¾ç½®äº† ImGuiTabBarFlags_DrawSelectedOverline æ—¶ï¼Œæ‰ä¼šåœ¨é€‰å®šçš„æ ‡ç­¾ä¸Šç»˜åˆ¶ä¸Šåˆ’çº¿ã€‚");
+                ImGui::DragFloat(u8"æ ‡ç­¾æœ€å°å®½åº¦(åŸºç¡€)", &style.TabMinWidthBase, 0.5f, 1.0f, 500.0f, "%.0f");
+                ImGui::DragFloat(u8"æ ‡ç­¾æœ€å°å®½åº¦(æ”¶ç¼©)", &style.TabMinWidthShrink, 0.5f, 1.0f, 500.0f, "%0.f");
+                ImGui::DragFloat(u8"æ ‡ç­¾å…³é—­æŒ‰é’®æœ€å°å®½åº¦(é€‰ä¸­)", &style.TabCloseButtonMinWidthSelected, 0.5f, -1.0f, 100.0f, (style.TabCloseButtonMinWidthSelected < 0.0f) ? u8"%.0f (æ€»æ˜¯)" : "%.0f");
+                ImGui::DragFloat(u8"æ ‡ç­¾å…³é—­æŒ‰é’®æœ€å°å®½åº¦(æœªé€‰ä¸­)", &style.TabCloseButtonMinWidthUnselected, 0.5f, -1.0f, 100.0f, (style.TabCloseButtonMinWidthUnselected < 0.0f) ? u8"%.0f (æ€»æ˜¯)" : "%.0f");
+                ImGui::SliderFloat(u8"æ ‡ç­¾åœ†è§’", &style.TabRounding, 0.0f, 12.0f, "%.0f");
+    
+                ImGui::SeparatorText(u8"è¡¨æ ¼");
+                ImGui::SliderFloat2(u8"å•å…ƒæ ¼è¾¹è·", (float*)&style.CellPadding, 0.0f, 20.0f, "%.0f");
+                ImGui::SliderAngle(u8"è¡¨æ ¼æ–œè§’æ ‡é¢˜è§’åº¦", &style.TableAngledHeadersAngle, -50.0f, +50.0f);
+                ImGui::SliderFloat2(u8"è¡¨æ ¼æ–œè§’æ ‡é¢˜å¯¹é½", (float*)&style.TableAngledHeadersTextAlign, 0.0f, 1.0f, "%.2f");
+    
+                ImGui::SeparatorText(u8"æ ‘");
+                bool combo_open = ImGui::BeginCombo(u8"æ ‘è¿æ¥çº¿æ ‡å¿—", GetTreeLinesFlagsName(style.TreeLinesFlags));
                 ImGui::SameLine();
-                HelpMarker(u8"[ÊµÑéĞÔ] Ê÷Á¬½ÓÏß¿ÉÄÜÔÚÄ³Ğ©Çé¿öÏÂ£¨ÀıÈçÊ¹ÓÃClipperÊ±£©ÎŞ·¨Õı³£¹¤×÷£¬²¢ÇÒ¿ÉÄÜ»á²úÉúÇáÎ¢µÄ±éÀú¿ªÏú¡£\n\nImGuiTreeNodeFlags_DrawLinesFull ±È ImGuiTreeNodeFlags_DrawLinesToNode ¸ü¿ì¡£");
+                HelpMarker(u8"[å®éªŒæ€§] æ ‘è¿æ¥çº¿å¯èƒ½åœ¨æŸäº›æƒ…å†µä¸‹ï¼ˆä¾‹å¦‚ä½¿ç”¨Clipperæ—¶ï¼‰æ— æ³•æ­£å¸¸å·¥ä½œï¼Œå¹¶ä¸”å¯èƒ½ä¼šäº§ç”Ÿè½»å¾®çš„éå†å¼€é”€ã€‚\n\nImGuiTreeNodeFlags_DrawLinesFull æ¯” ImGuiTreeNodeFlags_DrawLinesToNode æ›´å¿«ã€‚");
                 if (combo_open)
                 {
                     const ImGuiTreeNodeFlags options[] = { ImGuiTreeNodeFlags_DrawLinesNone, ImGuiTreeNodeFlags_DrawLinesFull, ImGuiTreeNodeFlags_DrawLinesToNodes };
@@ -576,57 +466,57 @@ namespace ImGui {
                             style.TreeLinesFlags = option;
                     EndCombo();
                 }
-                ImGui::SliderFloat(u8"Ê÷Á¬½ÓÏß³ß´ç", &style.TreeLinesSize, 0.0f, 2.0f, "%.0f");
-                ImGui::SliderFloat(u8"Ê÷Á¬½ÓÏßÔ²½Ç", &style.TreeLinesRounding, 0.0f, 12.0f, "%.0f");
-
-                ImGui::SeparatorText(u8"´°¿Ú");
-                ImGui::SliderFloat2(u8"´°¿Ú±êÌâ¶ÔÆë", (float*)&style.WindowTitleAlign, 0.0f, 1.0f, "%.2f");
-                ImGui::SliderFloat(u8"´°¿Ú±ß¿òĞüÍ£±ß¾à", &style.WindowBorderHoverPadding, 1.0f, 20.0f, "%.0f");
+                ImGui::SliderFloat(u8"æ ‘è¿æ¥çº¿å°ºå¯¸", &style.TreeLinesSize, 0.0f, 2.0f, "%.0f");
+                ImGui::SliderFloat(u8"æ ‘è¿æ¥çº¿åœ†è§’", &style.TreeLinesRounding, 0.0f, 12.0f, "%.0f");
+    
+                ImGui::SeparatorText(u8"çª—å£");
+                ImGui::SliderFloat2(u8"çª—å£æ ‡é¢˜å¯¹é½", (float*)&style.WindowTitleAlign, 0.0f, 1.0f, "%.2f");
+                ImGui::SliderFloat(u8"çª—å£è¾¹æ¡†æ‚¬åœè¾¹è·", &style.WindowBorderHoverPadding, 1.0f, 20.0f, "%.0f");
                 int window_menu_button_position = style.WindowMenuButtonPosition + 1;
-                if (ImGui::Combo(u8"´°¿Ú²Ëµ¥°´Å¥Î»ÖÃ", (int*)&window_menu_button_position, u8"ÎŞ\0×ó\0ÓÒ\0"))
+                if (ImGui::Combo(u8"çª—å£èœå•æŒ‰é’®ä½ç½®", (int*)&window_menu_button_position, u8"æ— \0å·¦\0å³\0"))
                     style.WindowMenuButtonPosition = (ImGuiDir)(window_menu_button_position - 1);
-
-                ImGui::SeparatorText(u8"¿Ø¼ş");
-                ImGui::Combo(u8"ÑÕÉ«°´Å¥Î»ÖÃ", (int*)&style.ColorButtonPosition, u8"×ó\0ÓÒ\0");
-                ImGui::SliderFloat2(u8"°´Å¥ÎÄ±¾¶ÔÆë", (float*)&style.ButtonTextAlign, 0.0f, 1.0f, "%.2f");
-                ImGui::SameLine(); HelpMarker(u8"µ±°´Å¥³ß´ç´óÓÚÆäÎÄ±¾ÄÚÈİÊ±Ó¦ÓÃ¶ÔÆë¡£");
-                ImGui::SliderFloat2(u8"¿ÉÑ¡ÏîÎÄ±¾¶ÔÆë", (float*)&style.SelectableTextAlign, 0.0f, 1.0f, "%.2f");
-                ImGui::SameLine(); HelpMarker(u8"µ±¿ÉÑ¡Ïî³ß´ç´óÓÚÆäÎÄ±¾ÄÚÈİÊ±Ó¦ÓÃ¶ÔÆë¡£");
-                ImGui::SliderFloat(u8"·Ö¸ô·ûÎÄ±¾±ß¿ò³ß´ç", &style.SeparatorTextBorderSize, 0.0f, 10.0f, "%.0f");
-                ImGui::SliderFloat2(u8"·Ö¸ô·ûÎÄ±¾¶ÔÆë", (float*)&style.SeparatorTextAlign, 0.0f, 1.0f, "%.2f");
-                ImGui::SliderFloat2(u8"·Ö¸ô·ûÎÄ±¾±ß¾à", (float*)&style.SeparatorTextPadding, 0.0f, 40.0f, "%.0f");
-                ImGui::SliderFloat(u8"¶ÔÊı»¬¿éËÀÇø", &style.LogSliderDeadzone, 0.0f, 12.0f, "%.0f");
-                ImGui::SliderFloat(u8"Í¼Æ¬±ß¿ò³ß´ç", &style.ImageBorderSize, 0.0f, 1.0f, "%.0f");
-
-                ImGui::SeparatorText(u8"Í£¿¿");
-                ImGui::Checkbox(u8"Í£¿¿½ÚµãÓĞ¹Ø±Õ°´Å¥", &style.DockingNodeHasCloseButton);
-                ImGui::SliderFloat(u8"Í£¿¿·Ö¸ô·û³ß´ç", &style.DockingSeparatorSize, 0.0f, 12.0f, "%.0f");
-
-                ImGui::SeparatorText(u8"¹¤¾ßÌáÊ¾");
+    
+                ImGui::SeparatorText(u8"æ§ä»¶");
+                ImGui::Combo(u8"é¢œè‰²æŒ‰é’®ä½ç½®", (int*)&style.ColorButtonPosition, u8"å·¦\0å³\0");
+                ImGui::SliderFloat2(u8"æŒ‰é’®æ–‡æœ¬å¯¹é½", (float*)&style.ButtonTextAlign, 0.0f, 1.0f, "%.2f");
+                ImGui::SameLine(); HelpMarker(u8"å½“æŒ‰é’®å°ºå¯¸å¤§äºå…¶æ–‡æœ¬å†…å®¹æ—¶åº”ç”¨å¯¹é½ã€‚");
+                ImGui::SliderFloat2(u8"å¯é€‰é¡¹æ–‡æœ¬å¯¹é½", (float*)&style.SelectableTextAlign, 0.0f, 1.0f, "%.2f");
+                ImGui::SameLine(); HelpMarker(u8"å½“å¯é€‰é¡¹å°ºå¯¸å¤§äºå…¶æ–‡æœ¬å†…å®¹æ—¶åº”ç”¨å¯¹é½ã€‚");
+                ImGui::SliderFloat(u8"åˆ†éš”ç¬¦æ–‡æœ¬è¾¹æ¡†å°ºå¯¸", &style.SeparatorTextBorderSize, 0.0f, 10.0f, "%.0f");
+                ImGui::SliderFloat2(u8"åˆ†éš”ç¬¦æ–‡æœ¬å¯¹é½", (float*)&style.SeparatorTextAlign, 0.0f, 1.0f, "%.2f");
+                ImGui::SliderFloat2(u8"åˆ†éš”ç¬¦æ–‡æœ¬è¾¹è·", (float*)&style.SeparatorTextPadding, 0.0f, 40.0f, "%.0f");
+                ImGui::SliderFloat(u8"å¯¹æ•°æ»‘å—æ­»åŒº", &style.LogSliderDeadzone, 0.0f, 12.0f, "%.0f");
+                ImGui::SliderFloat(u8"å›¾ç‰‡è¾¹æ¡†å°ºå¯¸", &style.ImageBorderSize, 0.0f, 1.0f, "%.0f");
+    
+                ImGui::SeparatorText(u8"åœé ");
+                ImGui::Checkbox(u8"åœé èŠ‚ç‚¹æœ‰å…³é—­æŒ‰é’®", &style.DockingNodeHasCloseButton);
+                ImGui::SliderFloat(u8"åœé åˆ†éš”ç¬¦å°ºå¯¸", &style.DockingSeparatorSize, 0.0f, 12.0f, "%.0f");
+    
+                ImGui::SeparatorText(u8"å·¥å…·æç¤º");
                 for (int n = 0; n < 2; n++)
-                    if (ImGui::TreeNodeEx(n == 0 ? u8"Êó±êĞüÍ£±êÖ¾" : u8"µ¼º½ĞüÍ£±êÖ¾"))
+                    if (ImGui::TreeNodeEx(n == 0 ? u8"é¼ æ ‡æ‚¬åœæ ‡å¿—" : u8"å¯¼èˆªæ‚¬åœæ ‡å¿—"))
                     {
                         ImGuiHoveredFlags* p = (n == 0) ? &style.HoverFlagsForTooltipMouse : &style.HoverFlagsForTooltipNav;
-                        ImGui::CheckboxFlags(u8"ÎŞÑÓ³Ù", p, ImGuiHoveredFlags_DelayNone);
-                        ImGui::CheckboxFlags(u8"¶ÌÑÓ³Ù", p, ImGuiHoveredFlags_DelayShort);
-                        ImGui::CheckboxFlags(u8"Õı³£ÑÓ³Ù", p, ImGuiHoveredFlags_DelayNormal);
-                        ImGui::CheckboxFlags(u8"¾²Ö¹", p, ImGuiHoveredFlags_Stationary);
-                        ImGui::CheckboxFlags(u8"ÎŞ¹²ÏíÑÓ³Ù", p, ImGuiHoveredFlags_NoSharedDelay);
+                        ImGui::CheckboxFlags(u8"æ— å»¶è¿Ÿ", p, ImGuiHoveredFlags_DelayNone);
+                        ImGui::CheckboxFlags(u8"çŸ­å»¶è¿Ÿ", p, ImGuiHoveredFlags_DelayShort);
+                        ImGui::CheckboxFlags(u8"æ­£å¸¸å»¶è¿Ÿ", p, ImGuiHoveredFlags_DelayNormal);
+                        ImGui::CheckboxFlags(u8"é™æ­¢", p, ImGuiHoveredFlags_Stationary);
+                        ImGui::CheckboxFlags(u8"æ— å…±äº«å»¶è¿Ÿ", p, ImGuiHoveredFlags_NoSharedDelay);
                         ImGui::TreePop();
                     }
-
-                ImGui::SeparatorText(u8"ÔÓÏî");
-                ImGui::SliderFloat2(u8"ÏÔÊ¾´°¿Ú±ß¾à", (float*)&style.DisplayWindowPadding, 0.0f, 30.0f, "%.0f"); ImGui::SameLine(); HelpMarker(u8"Ó¦ÓÃÓÚ³£¹æ´°¿Ú£ºÔÚ¿¿½üÆÁÄ»±ßÔµÒÆ¶¯Ê±ÎÒÃÇÇ¿ÖÆ±£³Ö¿É¼ûµÄÁ¿¡£");
-                ImGui::SliderFloat2(u8"ÆÁÄ»°²È«±ß¾à", (float*)&style.DisplaySafeAreaPadding, 0.0f, 30.0f, "%.0f"); ImGui::SameLine(); HelpMarker(u8"Ó¦ÓÃÓÚËùÓĞ´°¿Ú¡¢²Ëµ¥¡¢µ¯³ö´°¿Ú¡¢¹¤¾ßÌáÊ¾£ºÎÒÃÇ±ÜÃâÔÚ´ËÇøÓòÏÔÊ¾ÄÚÈİ¡£Èç¹ûÄú¿´²»µ½ÆÁÄ»±ßÔµ£¨ÀıÈçÔÚµçÊÓÉÏ£©£¬Çë½øĞĞµ÷Õû¡£");
-
+    
+                ImGui::SeparatorText(u8"æ‚é¡¹");
+                ImGui::SliderFloat2(u8"æ˜¾ç¤ºçª—å£è¾¹è·", (float*)&style.DisplayWindowPadding, 0.0f, 30.0f, "%.0f"); ImGui::SameLine(); HelpMarker(u8"åº”ç”¨äºå¸¸è§„çª—å£ï¼šåœ¨é è¿‘å±å¹•è¾¹ç¼˜ç§»åŠ¨æ—¶æˆ‘ä»¬å¼ºåˆ¶ä¿æŒå¯è§çš„é‡ã€‚");
+                ImGui::SliderFloat2(u8"å±å¹•å®‰å…¨è¾¹è·", (float*)&style.DisplaySafeAreaPadding, 0.0f, 30.0f, "%.0f"); ImGui::SameLine(); HelpMarker(u8"åº”ç”¨äºæ‰€æœ‰çª—å£ã€èœå•ã€å¼¹å‡ºçª—å£ã€å·¥å…·æç¤ºï¼šæˆ‘ä»¬é¿å…åœ¨æ­¤åŒºåŸŸæ˜¾ç¤ºå†…å®¹ã€‚å¦‚æœæ‚¨çœ‹ä¸åˆ°å±å¹•è¾¹ç¼˜ï¼ˆä¾‹å¦‚åœ¨ç”µè§†ä¸Šï¼‰ï¼Œè¯·è¿›è¡Œè°ƒæ•´ã€‚");
+    
                 ImGui::EndTabItem();
             }
-
-            if (ImGui::BeginTabItem(u8"ÑÕÉ«"))
+    
+            if (ImGui::BeginTabItem(u8"é¢œè‰²"))
             {
                 static int output_dest = 0;
                 static bool output_only_modified = true;
-                if (ImGui::Button(u8"µ¼³ö"))
+                if (ImGui::Button(u8"å¯¼å‡º"))
                 {
                     if (output_dest == 0)
                         LogToClipboard();
@@ -643,21 +533,21 @@ namespace ImGui {
                     }
                     LogFinish();
                 }
-                ImGui::SameLine(); ImGui::SetNextItemWidth(120); ImGui::Combo("##output_type", &output_dest, u8"µ½¼ôÌù°å\0µ½¿ØÖÆÌ¨\0");
-                ImGui::SameLine(); ImGui::Checkbox(u8"½öµ¼³öÒÑĞŞ¸ÄÏî", &output_only_modified);
-
+                ImGui::SameLine(); ImGui::SetNextItemWidth(120); ImGui::Combo("##output_type", &output_dest, u8"åˆ°å‰ªè´´æ¿\0åˆ°æ§åˆ¶å°\0");
+                ImGui::SameLine(); ImGui::Checkbox(u8"ä»…å¯¼å‡ºå·²ä¿®æ”¹é¡¹", &output_only_modified);
+    
                 static ImGuiTextFilter filter;
-                filter.Draw(u8"É¸Ñ¡ÑÕÉ«", ImGui::GetFontSize() * 16);
-
+                filter.Draw(u8"ç­›é€‰é¢œè‰²", ImGui::GetFontSize() * 16);
+    
                 static ImGuiColorEditFlags alpha_flags = 0;
-                if (ImGui::RadioButton(u8"²»Í¸Ã÷", alpha_flags == ImGuiColorEditFlags_AlphaOpaque)) { alpha_flags = ImGuiColorEditFlags_AlphaOpaque; } ImGui::SameLine();
-                if (ImGui::RadioButton(u8"Í¸Ã÷", alpha_flags == ImGuiColorEditFlags_None)) { alpha_flags = ImGuiColorEditFlags_None; } ImGui::SameLine();
-                if (ImGui::RadioButton(u8"Á½Õß", alpha_flags == ImGuiColorEditFlags_AlphaPreviewHalf)) { alpha_flags = ImGuiColorEditFlags_AlphaPreviewHalf; } ImGui::SameLine();
+                if (ImGui::RadioButton(u8"ä¸é€æ˜", alpha_flags == ImGuiColorEditFlags_AlphaOpaque)) { alpha_flags = ImGuiColorEditFlags_AlphaOpaque; } ImGui::SameLine();
+                if (ImGui::RadioButton(u8"é€æ˜", alpha_flags == ImGuiColorEditFlags_None)) { alpha_flags = ImGuiColorEditFlags_None; } ImGui::SameLine();
+                if (ImGui::RadioButton(u8"ä¸¤è€…", alpha_flags == ImGuiColorEditFlags_AlphaPreviewHalf)) { alpha_flags = ImGuiColorEditFlags_AlphaPreviewHalf; } ImGui::SameLine();
                 HelpMarker(
-                    u8"ÔÚÑÕÉ«ÁĞ±íÖĞ£º\n"
-                    u8"×ó¼üµã»÷É«¿é´ò¿ªÑÕÉ«Ñ¡ÔñÆ÷£¬\n"
-                    u8"ÓÒ¼üµã»÷´ò¿ª±à¼­Ñ¡Ïî²Ëµ¥¡£");
-
+                    u8"åœ¨é¢œè‰²åˆ—è¡¨ä¸­ï¼š\n"
+                    u8"å·¦é”®ç‚¹å‡»è‰²å—æ‰“å¼€é¢œè‰²é€‰æ‹©å™¨ï¼Œ\n"
+                    u8"å³é”®ç‚¹å‡»æ‰“å¼€ç¼–è¾‘é€‰é¡¹èœå•ã€‚");
+    
                 SetNextWindowSizeConstraints(ImVec2(0.0f, GetTextLineHeightWithSpacing() * 10), ImVec2(FLT_MAX, FLT_MAX));
                 BeginChild("##colors", ImVec2(0, 0), ImGuiChildFlags_Borders | ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar);
                 PushItemWidth(GetFontSize() * -12);
@@ -667,53 +557,53 @@ namespace ImGui {
                     if (!filter.PassFilter(name))
                         continue;
                     PushID(i);
-#ifndef IMGUI_DISABLE_DEBUG_TOOLS
+    #ifndef IMGUI_DISABLE_DEBUG_TOOLS
                     if (Button("?"))
                         DebugFlashStyleColor((ImGuiCol)i);
-                    SetItemTooltip(u8"ÉÁË¸´ËÑÕÉ«ÒÔÊ¶±ğÆäÊ¹ÓÃÎ»ÖÃ¡£");
+                    SetItemTooltip(u8"é—ªçƒæ­¤é¢œè‰²ä»¥è¯†åˆ«å…¶ä½¿ç”¨ä½ç½®ã€‚");
                     SameLine();
-#endif
+    #endif
                     ColorEdit4("##color", (float*)&style.Colors[i], ImGuiColorEditFlags_AlphaBar | alpha_flags);
                     if (memcmp(&style.Colors[i], &ref->Colors[i], sizeof(ImVec4)) != 0)
                     {
-                        SameLine(0.0f, style.ItemInnerSpacing.x); if (Button(u8"±£´æ")) { ref->Colors[i] = style.Colors[i]; }
-                        SameLine(0.0f, style.ItemInnerSpacing.x); if (Button(u8"»Ö¸´")) { style.Colors[i] = ref->Colors[i]; }
+                        SameLine(0.0f, style.ItemInnerSpacing.x); if (Button(u8"ä¿å­˜")) { ref->Colors[i] = style.Colors[i]; }
+                        SameLine(0.0f, style.ItemInnerSpacing.x); if (Button(u8"æ¢å¤")) { style.Colors[i] = ref->Colors[i]; }
                     }
                     SameLine(0.0f, style.ItemInnerSpacing.x);
-                    // µ÷ÓÃÎÒÃÇÖ®Ç°´´½¨µÄ·­Òëº¯ÊıÀ´ÏÔÊ¾ÖĞÎÄÃû
-                    TextUnformatted(TranslateColorName((ImGuiCol)i));
-                    PopID();
+                     // è°ƒç”¨æˆ‘ä»¬ä¹‹å‰åˆ›å»ºçš„ç¿»è¯‘å‡½æ•°æ¥æ˜¾ç¤ºä¸­æ–‡å
+                     TextUnformatted(TranslateColorName((ImGuiCol)i));
+                     PopID();
                 }
                 PopItemWidth();
                 EndChild();
-
+    
                 EndTabItem();
             }
-
-            if (BeginTabItem(u8"×ÖÌå"))
+    
+            if (BeginTabItem(u8"å­—ä½“"))
             {
                 ImGuiIO& io = GetIO();
                 ImFontAtlas* atlas = io.Fonts;
-                ShowFontAtlas_cn(atlas);
+                ImGui::ShowFontAtlas(atlas);
                 EndTabItem();
             }
-
-            if (ImGui::BeginTabItem(u8"äÖÈ¾"))
+    
+            if (ImGui::BeginTabItem(u8"æ¸²æŸ“"))
             {
-                ImGui::Checkbox(u8"¿¹¾â³İÏßÌõ", &style.AntiAliasedLines);
+                ImGui::Checkbox(u8"æŠ—é”¯é½¿çº¿æ¡", &style.AntiAliasedLines);
                 ImGui::SameLine();
-                HelpMarker(u8"½ûÓÃ¿¹¾â³İÏßÌõÊ±£¬Äú¿ÉÄÜÒ²ÏëÔÚÑùÊ½ÖĞ½ûÓÃ±ß¿ò¡£");
-
-                ImGui::Checkbox(u8"¿¹¾â³İÏßÌõÊ¹ÓÃÎÆÀí", &style.AntiAliasedLinesUseTex);
+                HelpMarker(u8"ç¦ç”¨æŠ—é”¯é½¿çº¿æ¡æ—¶ï¼Œæ‚¨å¯èƒ½ä¹Ÿæƒ³åœ¨æ ·å¼ä¸­ç¦ç”¨è¾¹æ¡†ã€‚");
+    
+                ImGui::Checkbox(u8"æŠ—é”¯é½¿çº¿æ¡ä½¿ç”¨çº¹ç†", &style.AntiAliasedLinesUseTex);
                 ImGui::SameLine();
-                HelpMarker(u8"Ê¹ÓÃÎÆÀíÊı¾İÊµÏÖ¸ü¿ìµÄÏßÌõ¡£ĞèÒªºó¶ËÒÔË«ÏßĞÔ¹ıÂË£¨¶ø·Çµã/×î½üÁÚ¹ıÂË£©½øĞĞäÖÈ¾¡£");
-
-                ImGui::Checkbox(u8"¿¹¾â³İÌî³ä", &style.AntiAliasedFill);
+                HelpMarker(u8"ä½¿ç”¨çº¹ç†æ•°æ®å®ç°æ›´å¿«çš„çº¿æ¡ã€‚éœ€è¦åç«¯ä»¥åŒçº¿æ€§è¿‡æ»¤ï¼ˆè€Œéç‚¹/æœ€è¿‘é‚»è¿‡æ»¤ï¼‰è¿›è¡Œæ¸²æŸ“ã€‚");
+    
+                ImGui::Checkbox(u8"æŠ—é”¯é½¿å¡«å……", &style.AntiAliasedFill);
                 ImGui::PushItemWidth(ImGui::GetFontSize() * 8);
-                ImGui::DragFloat(u8"ÇúÏßÏ¸·ÖÈİ²î", &style.CurveTessellationTol, 0.02f, 0.10f, 10.0f, "%.2f");
+                ImGui::DragFloat(u8"æ›²çº¿ç»†åˆ†å®¹å·®", &style.CurveTessellationTol, 0.02f, 0.10f, 10.0f, "%.2f");
                 if (style.CurveTessellationTol < 0.10f) style.CurveTessellationTol = 0.10f;
-
-                ImGui::DragFloat(u8"Ô²ĞÎÏ¸·Ö×î´óÎó²î", &style.CircleTessellationMaxError, 0.005f, 0.10f, 5.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+    
+                ImGui::DragFloat(u8"åœ†å½¢ç»†åˆ†æœ€å¤§è¯¯å·®", &style.CircleTessellationMaxError, 0.005f, 0.10f, 5.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
                 const bool show_samples = IsItemActive();
                 if (show_samples)
                     SetNextWindowPos(GetCursorScreenPos());
@@ -728,45 +618,43 @@ namespace ImGui {
                         const float RAD_MIN = 5.0f;
                         const float RAD_MAX = 70.0f;
                         const float rad = RAD_MIN + (RAD_MAX - RAD_MIN) * (float)n / (8.0f - 1.0f);
-
+    
                         BeginGroup();
-
+    
                         // N is not always exact here due to how PathArcTo() function work internally
                         Text("R: %.f\nN: %d", rad, draw_list->_CalcCircleAutoSegmentCount(rad));
-
+    
                         const float canvas_width = IM_MAX(min_widget_width, rad * 2.0f);
                         const float offset_x = floorf(canvas_width * 0.5f);
                         const float offset_y = floorf(RAD_MAX);
-
+    
                         const ImVec2 p1 = GetCursorScreenPos();
                         draw_list->AddCircle(ImVec2(p1.x + offset_x, p1.y + offset_y), rad, GetColorU32(ImGuiCol_Text));
                         Dummy(ImVec2(canvas_width, RAD_MAX * 2));
-
+    
                         /*
                         const ImVec2 p2 = GetCursorScreenPos();
                         draw_list->AddCircleFilled(ImVec2(p2.x + offset_x, p2.y + offset_y), rad, GetColorU32(ImGuiCol_Text));
                         Dummy(ImVec2(canvas_width, RAD_MAX * 2));
                         */
-
+    
                         EndGroup();
                         SameLine();
                     }
                     EndTooltip();
                 }
                 ImGui::SameLine();
-                HelpMarker(u8"ÔÚ»æÖÆÔ²ĞÎ»ùÔªÊ±£¬Èô 'num_segments == 0'£¬Ôò½«×Ô¶¯¼ÆËãÏ¸·Ö¡£");
-
-                ImGui::DragFloat(u8"È«¾ÖÍ¸Ã÷¶È", &style.Alpha, 0.005f, 0.20f, 1.0f, "%.2f");
-                ImGui::DragFloat(u8"½ûÓÃÏîÍ¸Ã÷¶È", &style.DisabledAlpha, 0.005f, 0.0f, 1.0f, "%.2f"); ImGui::SameLine(); HelpMarker(u8"Îª½ûÓÃÏî¸½¼ÓµÄÍ¸Ã÷¶È³ËÊı£¨ÔÚµ±Ç°AlphaÖµÉÏ³Ë£©¡£");
+                HelpMarker(u8"åœ¨ç»˜åˆ¶åœ†å½¢åŸºå…ƒæ—¶ï¼Œè‹¥ 'num_segments == 0'ï¼Œåˆ™å°†è‡ªåŠ¨è®¡ç®—ç»†åˆ†ã€‚");
+    
+                ImGui::DragFloat(u8"å…¨å±€é€æ˜åº¦", &style.Alpha, 0.005f, 0.20f, 1.0f, "%.2f");
+                ImGui::DragFloat(u8"ç¦ç”¨é¡¹é€æ˜åº¦", &style.DisabledAlpha, 0.005f, 0.0f, 1.0f, "%.2f"); ImGui::SameLine(); HelpMarker(u8"ä¸ºç¦ç”¨é¡¹é™„åŠ çš„é€æ˜åº¦ä¹˜æ•°ï¼ˆåœ¨å½“å‰Alphaå€¼ä¸Šä¹˜ï¼‰ã€‚");
                 ImGui::PopItemWidth();
-
+    
                 ImGui::EndTabItem();
             }
-
             ImGui::EndTabBar();
         }
-
         ImGui::PopItemWidth();
     }
+}
 
-} // namespace ImGui

@@ -3794,7 +3794,103 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     IM_ASSERT(0);
     return "Unknown";
 }
+const char* ImGui::TranslateColorName(ImGuiCol col) {
+    // 使用 u8 前缀确保所有中文字符串都是 UTF-8 编码
+    switch (col) {
+        // --- 文本 ---
+    case ImGuiCol_Text: return u8"文本";
+    case ImGuiCol_TextDisabled: return u8"禁用时文本";
+    case ImGuiCol_TextSelectedBg: return u8"选中文本背景";
+    case ImGuiCol_TextLink: return u8"链接文本";
 
+        // --- 窗口背景 ---
+    case ImGuiCol_WindowBg: return u8"窗口背景";
+    case ImGuiCol_ChildBg: return u8"子窗口背景";
+    case ImGuiCol_PopupBg: return u8"弹出层背景";
+        //case ImGuiCol_DockingEmptyBg: return u8"空停靠区背景";
+
+            // --- 边框 ---
+    case ImGuiCol_Border: return u8"边框";
+    case ImGuiCol_BorderShadow: return u8"边框阴影 (已弃用)";
+
+        // --- 控件框架 ---
+    case ImGuiCol_FrameBg: return u8"控件背景";
+    case ImGuiCol_FrameBgHovered: return u8"控件背景 (悬停)";
+    case ImGuiCol_FrameBgActive: return u8"控件背景 (激活)";
+
+        // --- 标题栏 ---
+    case ImGuiCol_TitleBg: return u8"标题栏背景";
+    case ImGuiCol_TitleBgActive: return u8"标题栏背景 (激活)";
+    case ImGuiCol_TitleBgCollapsed: return u8"标题栏背景 (折叠)";
+    case ImGuiCol_MenuBarBg: return u8"菜单栏背景";
+
+        // --- 滚动条 ---
+    case ImGuiCol_ScrollbarBg: return u8"滚动条背景";
+    case ImGuiCol_ScrollbarGrab: return u8"滚动条滑块";
+    case ImGuiCol_ScrollbarGrabHovered: return u8"滚动条滑块 (悬停)";
+    case ImGuiCol_ScrollbarGrabActive: return u8"滚动条滑块 (激活)";
+
+        // --- 控件特定项 ---
+    case ImGuiCol_CheckMark: return u8"勾选标记";
+    case ImGuiCol_SliderGrab: return u8"滑块";
+    case ImGuiCol_SliderGrabActive: return u8"滑块 (激活)";
+    case ImGuiCol_InputTextCursor: return u8"输入框光标";
+
+        // --- 按钮 ---
+    case ImGuiCol_Button: return u8"按钮";
+    case ImGuiCol_ButtonHovered: return u8"按钮 (悬停)";
+    case ImGuiCol_ButtonActive: return u8"按钮 (激活)";
+
+        // --- 标题头 ---
+    case ImGuiCol_Header: return u8"标题头";
+    case ImGuiCol_HeaderHovered: return u8"标题头 (悬停)";
+    case ImGuiCol_HeaderActive: return u8"标题头 (激活)";
+
+        // --- 分隔符 ---
+    case ImGuiCol_Separator: return u8"分隔符";
+    case ImGuiCol_SeparatorHovered: return u8"分隔符 (悬停)";
+    case ImGuiCol_SeparatorActive: return u8"分隔符 (激活)";
+
+        // --- 尺寸调整 ---
+    case ImGuiCol_ResizeGrip: return u8"尺寸调整手柄";
+    case ImGuiCol_ResizeGripHovered: return u8"尺寸调整手柄 (悬停)";
+    case ImGuiCol_ResizeGripActive: return u8"尺寸调整手柄 (激活)";
+
+        // --- 标签页 ---
+    case ImGuiCol_Tab: return u8"标签页";
+    case ImGuiCol_TabHovered: return u8"标签页 (悬停)";
+    case ImGuiCol_TabSelected: return u8"选中标签页";
+    case ImGuiCol_TabSelectedOverline: return u8"选中标签页上划线";
+    case ImGuiCol_TabDimmed: return u8"标签页 (失焦)";
+    case ImGuiCol_TabDimmedSelected: return u8"选中标签页 (失焦)";
+    case ImGuiCol_TabDimmedSelectedOverline: return u8"选中标签页上划线 (失焦)";
+
+        // --- 表格 ---
+    case ImGuiCol_TableHeaderBg: return u8"表格标题背景";
+    case ImGuiCol_TableBorderStrong: return u8"表格强边框";
+    case ImGuiCol_TableBorderLight: return u8"表格弱边框";
+    case ImGuiCol_TableRowBg: return u8"表格行背景";
+    case ImGuiCol_TableRowBgAlt: return u8"表格行背景 (交替)";
+
+        // --- 绘图 ---
+    case ImGuiCol_PlotLines: return u8"绘图线条";
+    case ImGuiCol_PlotLinesHovered: return u8"绘图线条 (悬停)";
+    case ImGuiCol_PlotHistogram: return u8"绘图直方图";
+    case ImGuiCol_PlotHistogramHovered: return u8"绘图直方图 (悬停)";
+
+        // --- 导航与标记 ---
+    case ImGuiCol_NavCursor: return u8"导航光标";
+    case ImGuiCol_TreeLines: return u8"树连接线";
+    case ImGuiCol_DragDropTarget: return u8"拖放目标高亮";
+    case ImGuiCol_UnsavedMarker: return u8"未保存标记";
+    case ImGuiCol_DockingPreview: return u8"停靠预览";
+    case ImGuiCol_NavWindowingHighlight: return u8"导航窗口高亮";
+    case ImGuiCol_NavWindowingDimBg: return u8"导航窗口遮罩";
+    case ImGuiCol_ModalWindowDimBg: return u8"模态窗口遮罩";
+
+    default: return ImGui::GetStyleColorName(col); // 如果有未覆盖到的新枚举，则返回其英文名
+    }
+}
 //-----------------------------------------------------------------------------
 // [SECTION] RENDER HELPERS
 // Some of those (internal) functions are currently quite a legacy mess - their signature and behavior will change,
@@ -21825,62 +21921,62 @@ void ImGui::ShowFontAtlas(ImFontAtlas* atlas)
     ImGuiStyle& style = g.Style;
 
     BeginDisabled();
-    CheckboxFlags("io.BackendFlags: RendererHasTextures", &io.BackendFlags, ImGuiBackendFlags_RendererHasTextures);
+    CheckboxFlags(u8"io.BackendFlags: RendererHasTextures (渲染器有纹理)", &io.BackendFlags, ImGuiBackendFlags_RendererHasTextures);
     EndDisabled();
-    ShowFontSelector("Font");
+    ShowFontSelector(u8"字体");
     //BeginDisabled((io.BackendFlags & ImGuiBackendFlags_RendererHasTextures) == 0);
-    if (DragFloat("FontSizeBase", &style.FontSizeBase, 0.20f, 5.0f, 100.0f, "%.0f"))
-        style._NextFrameFontSizeBase = style.FontSizeBase; // FIXME: Temporary hack until we finish remaining work.
-    SameLine(0.0f, 0.0f); Text(" (out %.2f)", GetFontSize());
-    SameLine(); MetricsHelpMarker("- This is scaling font only. General scaling will come later.");
-    DragFloat("FontScaleMain", &style.FontScaleMain, 0.02f, 0.5f, 4.0f);
+    if (DragFloat(u8"基础字体大小", &style.FontSizeBase, 0.20f, 5.0f, 100.0f, "%.0f"))
+        style._NextFrameFontSizeBase = style.FontSizeBase; // 修复：临时 hack，直到我们完成剩余工作.
+    SameLine(0.0f, 0.0f); Text(u8" (输出 %.2f)", GetFontSize());
+    SameLine(); MetricsHelpMarker(u8"- 这只是缩放字体.通用缩放将在稍后提供.");
+    DragFloat(u8"主字体缩放", &style.FontScaleMain, 0.02f, 0.5f, 4.0f);
     //BeginDisabled(io.ConfigDpiScaleFonts);
-    DragFloat("FontScaleDpi", &style.FontScaleDpi, 0.02f, 0.5f, 4.0f);
-    //SetItemTooltip("When io.ConfigDpiScaleFonts is set, this value is automatically overwritten.");
+    DragFloat(u8"DPI字体缩放", &style.FontScaleDpi, 0.02f, 0.5f, 4.0f);
+    //SetItemTooltip(u8"当设置 io.ConfigDpiScaleFonts 时，此值会自动被覆盖.");
     //EndDisabled();
     if ((io.BackendFlags & ImGuiBackendFlags_RendererHasTextures) == 0)
     {
-        BulletText("Warning: Font scaling will NOT be smooth, because\nImGuiBackendFlags_RendererHasTextures is not set!");
-        BulletText("For instructions, see:");
+        BulletText(u8"警告：字体缩放将不平滑，因为\n未设置 ImGuiBackendFlags_RendererHasTextures 标志!");
+        BulletText(u8"有关说明，请参见：");
         SameLine();
-        TextLinkOpenURL("docs/BACKENDS.md", "https://github.com/ocornut/imgui/blob/master/docs/BACKENDS.md");
+        TextLinkOpenURL(u8"docs/BACKENDS.md", "https://github.com/ocornut/imgui/blob/master/docs/BACKENDS.md");
     }
-    BulletText("Load a nice font for better results!");
-    BulletText("Please submit feedback:");
-    SameLine(); TextLinkOpenURL("#8465", "https://github.com/ocornut/imgui/issues/8465");
-    BulletText("Read FAQ for more details:");
-    SameLine(); TextLinkOpenURL("dearimgui.com/faq", "https://www.dearimgui.com/faq/");
+    BulletText(u8"加载一个好看的字体以获得更好的结果!");
+    BulletText(u8"请提交反馈：");
+    SameLine(); TextLinkOpenURL(u8"#8465", "https://github.com/ocornut/imgui/issues/8465");
+    BulletText(u8"阅读常见问题解答获取更多详情：");
+    SameLine(); TextLinkOpenURL(u8"dearimgui.com/faq", "https://www.dearimgui.com/faq/");
     //EndDisabled();
 
-    SeparatorText("Font List");
+    SeparatorText(u8"字体列表");
 
     ImGuiMetricsConfig* cfg = &g.DebugMetricsConfig;
-    Checkbox("Show font preview", &cfg->ShowFontPreview);
+    Checkbox(u8"显示字体预览", &cfg->ShowFontPreview);
 
-    // Font loaders
-    if (TreeNode("Loader", "Loader: \'%s\'", atlas->FontLoaderName ? atlas->FontLoaderName : "NULL"))
+    // 字体加载器
+    if (TreeNode(u8"加载器", u8"加载器: \'%s\'", atlas->FontLoaderName ? atlas->FontLoaderName : "NULL"))
     {
         const ImFontLoader* loader_current = atlas->FontLoader;
         BeginDisabled(!atlas->RendererHasTextures);
 #ifdef IMGUI_ENABLE_STB_TRUETYPE
         const ImFontLoader* loader_stbtruetype = ImFontAtlasGetFontLoaderForStbTruetype();
-        if (RadioButton("stb_truetype", loader_current == loader_stbtruetype))
+        if (RadioButton(u8"stb_truetype", loader_current == loader_stbtruetype))
             atlas->SetFontLoader(loader_stbtruetype);
 #else
         BeginDisabled();
-        RadioButton("stb_truetype", false);
-        SetItemTooltip("Requires #define IMGUI_ENABLE_STB_TRUETYPE");
+        RadioButton(u8"stb_truetype", false);
+        SetItemTooltip(u8"需要 #define IMGUI_ENABLE_STB_TRUETYPE");
         EndDisabled();
 #endif
         SameLine();
 #ifdef IMGUI_ENABLE_FREETYPE
         const ImFontLoader* loader_freetype = ImGuiFreeType::GetFontLoader();
-        if (RadioButton("FreeType", loader_current == loader_freetype))
+        if (RadioButton(u8"FreeType", loader_current == loader_freetype))
             atlas->SetFontLoader(loader_freetype);
         if (loader_current == loader_freetype)
         {
             unsigned int loader_flags = atlas->FontLoaderFlags;
-            Text("Shared FreeType Loader Flags:  0x%08X", loader_flags);
+            Text(u8"共享 FreeType 加载器标志:  0x%08X", loader_flags);
             if (ImGuiFreeType::DebugEditFontLoaderFlags(&loader_flags))
             {
                 for (ImFont* font : atlas->Fonts)
@@ -21892,15 +21988,15 @@ void ImGui::ShowFontAtlas(ImFontAtlas* atlas)
         }
 #else
         BeginDisabled();
-        RadioButton("FreeType", false);
-        SetItemTooltip("Requires #define IMGUI_ENABLE_FREETYPE + imgui_freetype.cpp.");
+        RadioButton(u8"FreeType", false);
+        SetItemTooltip(u8"需要 #define IMGUI_ENABLE_FREETYPE + imgui_freetype.cpp.");
         EndDisabled();
 #endif
         EndDisabled();
         TreePop();
     }
 
-    // Font list
+    // 字体列表
     for (ImFont* font : atlas->Fonts)
     {
         PushID(font);
@@ -21908,31 +22004,31 @@ void ImGui::ShowFontAtlas(ImFontAtlas* atlas)
         PopID();
     }
 
-    SeparatorText("Font Atlas");
-    if (Button("Compact"))
+    SeparatorText(u8"字体图集");
+    if (Button(u8"压缩"))
         atlas->CompactCache();
     SameLine();
-    if (Button("Grow"))
+    if (Button(u8"增长"))
         ImFontAtlasTextureGrow(atlas);
     SameLine();
-    if (Button("Clear All"))
+    if (Button(u8"清除全部"))
         ImFontAtlasBuildClear(atlas);
-    SetItemTooltip("Destroy cache and custom rectangles.");
+    SetItemTooltip(u8"销毁缓存和自定义矩形.");
 
     for (int tex_n = 0; tex_n < atlas->TexList.Size; tex_n++)
     {
         ImTextureData* tex = atlas->TexList[tex_n];
         if (tex_n > 0)
             SameLine();
-        Text("Tex: %dx%d", tex->Width, tex->Height);
+        Text(u8"纹理: %dx%d", tex->Width, tex->Height);
     }
     const int packed_surface_sqrt = (int)sqrtf((float)atlas->Builder->RectsPackedSurface);
     const int discarded_surface_sqrt = (int)sqrtf((float)atlas->Builder->RectsDiscardedSurface);
-    Text("Packed rects: %d, area: about %d px ~%dx%d px", atlas->Builder->RectsPackedCount, atlas->Builder->RectsPackedSurface, packed_surface_sqrt, packed_surface_sqrt);
-    Text("incl. Discarded rects: %d, area: about %d px ~%dx%d px", atlas->Builder->RectsDiscardedCount, atlas->Builder->RectsDiscardedSurface, discarded_surface_sqrt, discarded_surface_sqrt);
+    Text(u8"打包矩形: %d, 面积: 约 %d 像素 ~%dx%d 像素", atlas->Builder->RectsPackedCount, atlas->Builder->RectsPackedSurface, packed_surface_sqrt, packed_surface_sqrt);
+    Text(u8"包括丢弃矩形: %d, 面积: 约 %d 像素 ~%dx%d 像素", atlas->Builder->RectsDiscardedCount, atlas->Builder->RectsDiscardedSurface, discarded_surface_sqrt, discarded_surface_sqrt);
 
     ImFontAtlasRectId highlight_r_id = ImFontAtlasRectId_Invalid;
-    if (TreeNode("Rects Index", "Rects Index (%d)", atlas->Builder->RectsPackedCount)) // <-- Use count of used rectangles
+    if (TreeNode(u8"矩形索引", u8"矩形索引 (%d)", atlas->Builder->RectsPackedCount)) // <-- 使用已使用矩形的计数
     {
         PushStyleVar(ImGuiStyleVar_ImageBorderSize, 1.0f);
         if (BeginTable("##table", 2, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollY, ImVec2(0.0f, GetTextLineHeightWithSpacing() * 12)))

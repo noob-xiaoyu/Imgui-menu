@@ -84,8 +84,6 @@ void SetSakuraPinkTheme()
     style.ChildRounding = 8.0f;
     style.PopupRounding = 8.0f;
     style.GrabRounding = 8.0f;
-    style.Colors[ImGuiCol_WindowBg].w = 0.85f;
-    style.Colors[ImGuiCol_PopupBg].w = 0.85f;
 }
 // 设置一个高对比度的霓虹粉暗色主题
 void SetNeonPinkDarkTheme()
@@ -141,8 +139,6 @@ void SetNeonPinkDarkTheme()
     style.WindowRounding = 6.0f;
     style.FrameRounding = 4.0f;
     style.GrabRounding = 4.0f;
-    style.Colors[ImGuiCol_WindowBg].w = 0.85f;
-    style.Colors[ImGuiCol_PopupBg].w = 0.85f;
 }
 
 void ApplyCustomStyle() {
