@@ -643,6 +643,7 @@ namespace menu {
             ImGui::Separator();
             ImGui::Text(u8"帧率: %.1f FPS", ImGui::GetIO().Framerate);
             ImGui::Separator();
+            ImGui::TextLinkOpenURL(u8"Github", "https://github.com/noob-xiaoyu/Imgui-menu");
             ImGui::EndChild();ImGui::SameLine();
             ImGui::BeginChild("ContentArea", ImVec2(0, 0), true); {
                 switch (active_tab) {
@@ -740,4 +741,5 @@ namespace menu {
         ImGui::End();
     }
 }
+
 
