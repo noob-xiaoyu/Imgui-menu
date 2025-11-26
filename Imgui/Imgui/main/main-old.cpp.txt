@@ -1,0 +1,285 @@
+// main.cpp
+// --- 核心头文件 ---
+#include <cstdio>
+#include <iostream>
+#include <stdexcept>
+
+// --- 库头文件 ---
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#ifdef IMGUI_ENABLE_FREETYPE
+#include "imgui_freetype.h" // [MERGE] 如果要加载彩色Emoji，需要包含此头文件
+#endif
+
+// --- 项目头文件 ---
+#include "menu/menu.h"
+#include "ThemeManager/ThemeManager.h"
+#include "main.h"
+
+// [REWRITE] 将平台特定的代码隔离到不同的代码块中，提高可读性
+#ifdef _WIN32
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#include <Windows.h>
+#endif
+
+// ===================================================================================
+//  GPU 性能偏好设置 (适用于双显卡笔记本)
+// ===================================================================================
+// [REWRITE] 这部分逻辑是正确的，予以保留并用注释块进行格式化。
+#ifdef _WIN32
+extern "C" {
+    // 提示 NVIDIA 驱动程序使用独立显卡
+    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+    // 提示 AMD 驱动程序使用独立显卡
+    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+#endif
+
+// ===================================================================================
+//  全局热键处理 (平台特定)
+// ===================================================================================
+// [REWRITE] 全局热键是一个高级功能，将其逻辑封装起来，使其与主程序逻辑解耦。
+#ifdef _WIN32
+HHOOK g_keyboardHook = NULL;
+
+LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    if (nCode == HC_ACTION) {
+        KBDLLHOOKSTRUCT* pkbhs = (KBDLLHOOKSTRUCT*)lParam;
+        if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
+            // 检查是否按下了我们定义的菜单切换键
+            if (menu::state::toggle_key_vk != 0 && pkbhs->vkCode == menu::state::toggle_key_vk) {
+                menu::state::visible = !menu::state::visible;
+                // 返回 1 可以阻止按键消息继续传递，但我们通常不这样做
+                //return 1;
+            }
+        }
+    }
+    // 必须调用 CallNextHookEx，否则会破坏钩子链
+    return CallNextHookEx(g_keyboardHook, nCode, wParam, lParam);
+}
+
+void InstallGlobalHotkey() {
+    g_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, GetModuleHandle(NULL), 0);
+    if (g_keyboardHook == NULL) {
+        std::cerr << "错误: 无法安装全局键盘钩子 (SetWindowsHookEx failed)!" << std::endl;
+    }
+}
+
+void UninstallGlobalHotkey() {
+    if (g_keyboardHook) {
+        UnhookWindowsHookEx(g_keyboardHook);
+    }
+}
+#else
+// 在非 Windows 平台上提供空的实现，以保证代码可以编译通过
+void InstallGlobalHotkey() {
+    std::cout << "信息: 当前平台不支持全局热键。" << std::endl;
+}
+void UninstallGlobalHotkey() {}
+#endif
+
+// ===================================================================================
+//  辅助函数
+// ===================================================================================
+void glfw_error_callback(int error, const char* description) {
+    fprintf(stderr, "GLFW 错误 %d: %s\n", error, description);
+}
+
+GLFWwindow* g_Window = nullptr;
+
+// ===================================================================================
+//  主函数
+// ===================================================================================
+int main() {
+    // --- 1. 初始化 GLFW ---
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit()) {
+        fprintf(stderr, "严重错误: GLFW 初始化失败。\n");
+        return -1;
+    }
+
+    // --- 2. 配置窗口提示 (Hints) ---
+    // [REWRITE] 创建一个更适合覆盖层的窗口：无边框、透明、浮动
+    const char* glsl_version = "#version 130";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);             // 无边框
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);// 开启帧缓冲透明
+    glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);               // 窗口置顶
+
+    // --- 3. 创建窗口 ---
+    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+    if (!mode) {
+        fprintf(stderr, "严重错误: 无法获取主显示器的视频模式。\n");
+        glfwTerminate();
+        return -1;
+    }
+    g_Window = glfwCreateWindow(mode->width+1, mode->height+1, "ImGui Overlay", NULL, NULL);
+    if (g_Window == NULL) {
+        fprintf(stderr, "严重错误: 创建 GLFW 窗口失败。\n");
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(g_Window);
+    // [REWRITE] 启用垂直同步。对于UI应用，这通常是更好的选择，可以防止画面撕裂并降低GPU负载。
+    // 如果需要极致的低延迟，可以设为 0。
+    glfwSwapInterval(0);
+
+    // --- 4. 初始化 GLAD ---
+    // [REWRITE] 初始化 GLAD 来加载 OpenGL 函数指针
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        fprintf(stderr, "严重错误: 初始化 GLAD 失败。\n");
+        glfwTerminate();
+        return -1;
+    }
+    printf("OpenGL Renderer: %s\n", glGetString(GL_RENDERER));
+
+    // --- 5. 初始化 ImGui ---
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // 多视口功能按需开启
+
+     ImGuiStyle& style = ImGui::GetStyle();
+     style.WindowRounding = 10.0F;
+     // 让背景稍微透明一点，更有覆盖层的“毛玻璃”感觉
+     style.Colors[ImGuiCol_WindowBg].w = 0.85f;
+     style.Colors[ImGuiCol_PopupBg].w = 0.85f;
+
+     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+         style.WindowRounding = 0.0f;
+         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+     }
+
+    // 初始化 ImGui 后端
+    ImGui_ImplGlfw_InitForOpenGL(g_Window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
+    // --- 6. 加载字体 ---
+    const char* font_path = "C:/Windows/Fonts/msyhbd.ttc"; // 微软雅黑 Bold
+    float font_size = 18.0f;
+    if (io.Fonts->AddFontFromFileTTF(font_path, font_size, NULL, io.Fonts->GetGlyphRangesChineseSimplifiedCommon()) == nullptr) {
+        fprintf(stderr, "警告: 中文字体加载失败，将使用默认字体。路径: %s\n", font_path);
+    }
+#ifdef IMGUI_ENABLE_FREETYPE // 使用宏定义来条件编译
+    {
+        ImFontConfig cfg;
+        cfg.MergeMode = true; // 关键：设置为合并模式
+        cfg.PixelSnapH = true; // 提高字体清晰度
+
+        // 关键：告诉 FreeType 加载彩色表情符号
+        // 注意：在旧版 ImGui 中可能是 FontBuilderFlags
+        cfg.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
+
+        // 指定要加载的字形范围，这里使用默认的，Emoji通常在这个范围内
+        static const ImWchar ranges[] = { 0x1, 0x1FFFF, 0 };
+
+        io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/seguiemj.ttf", 17.0f, &cfg, ranges);
+        IM_ASSERT(io.Fonts->Fonts.back() != nullptr);
+    }
+#endif
+    // --- 7. 初始化应用程序逻辑 ---
+    menu::state::toggle_key_vk = menu::ImGuiKeyToVirtualKey(menu::state::toggle_key);
+    InstallGlobalHotkey();
+
+    // [FIX] 实例化鼠标轨迹对象
+    menu::MouseTrail mouse_trail;
+    
+    // [REWRITE] 定义一个完全透明的清屏颜色
+    ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+    // --- 8. 主循环 ---
+    while (!glfwWindowShouldClose(g_Window)) {
+        // [REWRITE] 性能优化: 使用 glfwWaitEvents()。
+        // 当没有窗口事件 (如鼠标移动、键盘输入) 时，程序会“睡眠”，CPU占用率会降到接近0%。
+        // 这对于一个覆盖层菜单来说是理想的选择。如果菜单内有持续动画，则应换回 glfwPollEvents()。
+        glfwPollEvents();
+        //glfwWaitEventsTimeout(1.0 / 144.0);
+        
+
+        // 开始新的一帧
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // --- 绘制 UI ---
+        // 设置一个全屏的 Dockspace
+        const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(main_viewport->WorkPos);
+        ImGui::SetNextWindowSize(main_viewport->WorkSize);
+        ImGui::SetNextWindowViewport(main_viewport->ID);
+
+        ImGuiWindowFlags host_window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+            ImGuiWindowFlags_NoBackground; 
+        host_window_flags |= ImGuiWindowFlags_NoMouseInputs;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::Begin("Dockspace Host", nullptr, host_window_flags);
+        ImGui::PopStyleVar();
+
+        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+
+        ImGui::End();
+        mouse_trail.Render();
+        // 只有当菜单可见时，才绘制它
+        if (menu::state::visible) {
+            menu::draw();
+            //printf("draw\n");
+        }
+        
+        
+        // --- 渲染 ---
+        ImGui::Render();
+
+        if (!menu::state::visible) {
+            // 菜单隐藏时，无条件开启穿透
+            glfwSetWindowAttrib(g_Window, GLFW_MOUSE_PASSTHROUGH, GLFW_TRUE);
+            //printf("on\n");
+        }
+        //else {
+        //    // 菜单可见时，才根据鼠标是否在UI上进行判断
+        //    bool is_hovering_gui = ImGui::GetIO().WantCaptureMouse;
+        //    glfwSetWindowAttrib(g_Window, GLFW_MOUSE_PASSTHROUGH, is_hovering_gui ? GLFW_FALSE : GLFW_TRUE);
+        //}
+
+        int display_w, display_h;
+        glfwGetFramebufferSize(g_Window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // 多视口支持
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+        }
+
+        glfwSwapBuffers(g_Window);
+    }
+
+    // --- 9. 清理资源 ---
+    UninstallGlobalHotkey();
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(g_Window);
+    glfwTerminate();
+
+    return 0;
+}
